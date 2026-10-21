@@ -52,29 +52,25 @@
     }
 
     .glass-panel {
-      background: rgba(13, 18, 30, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(13, 18, 30, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     }
 
     .glass-card {
-      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
-      backdrop-filter: blur(10px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .glass-card:hover {
-      transform: translateY(-3px) scale(1.01);
-      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-4px) scale(1.015);
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.25);
     }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.03); }
-    }
-    .pulse-glow { animation: pulseGlow 2.5s infinite ease-in-out; }
 
     @keyframes floatHero {
       0%, 100% { transform: translateY(0px); }
@@ -108,8 +104,8 @@
 
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+    ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.6); }
 
     .scanlines {
       background: linear-gradient(
@@ -125,7 +121,6 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between relative font-sans overflow-x-hidden bg-cyberbg text-slate-100">
 
-  <!-- Background Animated Canvas -->
   <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
   <div class="fixed inset-0 pointer-events-none z-0 scanlines opacity-25"></div>
 
@@ -144,7 +139,6 @@
     </p>
   </header>
 
-  <!-- MAIN CONTAINER -->
   <main class="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 py-4 flex flex-col items-center justify-center">
 
     <!-- SCREEN 1: MODE SELECTION -->
@@ -167,12 +161,12 @@
             <p class="text-xs text-slate-400">Dois jogadores escolhem seus heróis e duelam em turnos alternados na mesma tela.</p>
           </button>
 
-          <button onclick="showDifficultySelect()" class="glass-card p-6 rounded-xl border border-red-500/30 hover:border-red-400 hover:shadow-neon-red flex flex-col items-center text-center group transition-all">
+          <button onclick="selectGameMode('story')" class="glass-card p-6 rounded-xl border border-red-500/30 hover:border-red-400 hover:shadow-neon-red flex flex-col items-center text-center group transition-all">
             <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-400/40 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <i class="fas fa-robot text-2xl text-red-400"></i>
             </div>
-            <h3 class="font-cyber font-bold text-lg text-red-400 mb-1">Modo História</h3>
-            <p class="text-xs text-slate-400">Escolha seu Campeão e enfrente o robô Robustus em uma batalha épica.</p>
+            <h3 class="font-cyber font-bold text-lg text-red-400 mb-1">Modo História (Boss Robustus)</h3>
+            <p class="text-xs text-slate-400">Escolha seu Campeão, lute contra o Robustus e destrua a armada de drones no minigame final!</p>
           </button>
         </div>
       </div>
@@ -221,13 +215,13 @@
     <!-- SCREEN 2: HERO SELECT -->
     <section id="screenHeroSelect" class="w-full hidden flex-col items-center">
       <div class="w-full flex justify-between items-center mb-4">
-        <button onclick="backToModeSelect()" class="text-xs font-cyber text-slate-400 hover:text-white flex items-center gap-1 glass-panel px-3 py-2 rounded-lg">
-          <i class="fas fa-arrow-left"></i> Voltar
+        <button onclick="backToModeSelect()" class="text-xs font-cyber text-slate-300 hover:text-white flex items-center gap-2 glass-panel px-4 py-2 rounded-xl border border-cyan-500/30 hover:border-cyan-400 transition-all">
+          <i class="fas fa-arrow-left text-cyan-400"></i> Voltar
         </button>
-        <div id="selectionTitle" class="font-cyber font-bold text-lg text-cyan-400 tracking-wider">
+        <div id="selectionTitle" class="font-cyber font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 tracking-wider">
           JOGADOR 1: Escolha seu Herói
         </div>
-        <div class="w-16"></div>
+        <div class="w-20"></div>
       </div>
 
       <div id="heroGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
@@ -358,12 +352,12 @@
 
     <!-- SCREEN 4: POST-ROBUSTUS MINIGAME -->
     <section id="screenMinigame" class="w-full hidden flex-col items-center relative">
-      <div class="w-full glass-panel p-4 rounded-xl border border-red-500/40 mb-4 text-center">
+      <div class="w-full glass-panel p-4 rounded-xl border border-red-500/40 mb-4 text-center shadow-neon-red">
         <h2 class="font-cyber font-bold text-2xl text-red-400 uppercase tracking-wider mb-1">
-          SOBRECARGA DO NÚCLEO DE ROBUSTUS
+          <i class="fas fa-radiation animate-pulse mr-2"></i> SOBRECARGA DO NÚCLEO DE ROBUSTUS
         </h2>
         <p class="text-xs text-slate-300">
-          <strong class="text-amber-400">ESCUDO ATIVO:</strong> O Robustus está protegido pelos Drones! Destrua todos os drones na tela para conseguir danificar o Núcleo!
+          <strong class="text-amber-400">ESCUDO ATIVO:</strong> O Núcleo do Robustus está protegido! Clique rapidamente nos <strong class="text-red-400">Drones</strong> para eliminá-los e causar dano ao Chefe!
         </p>
       </div>
 
@@ -401,6 +395,65 @@
       </div>
     </div>
 
+    <!-- BIO MODAL -->
+    <div id="bioModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+      <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-cyan-500/40 max-w-2xl w-full relative max-h-[90vh] overflow-y-auto shadow-2xl">
+        <button onclick="closeBioModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+          <i class="fas fa-times"></i>
+        </button>
+
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+          <div id="bioAvatar" class="w-32 h-32 flex-shrink-0 flex items-center justify-center glass-panel p-2 rounded-2xl border border-cyan-500/30">
+            <!-- SVG Avatar -->
+          </div>
+          <div class="flex-1 text-center sm:text-left">
+            <span id="bioRole" class="text-xs font-cyber text-cyan-400 uppercase tracking-widest block font-bold">Herói Miraculous</span>
+            <h2 id="bioName" class="font-cyber font-black text-3xl text-white mb-2">Ladybug</h2>
+            <p id="bioLore" class="text-xs text-slate-300 leading-relaxed font-sans">
+              <!-- Lore text -->
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h4 class="font-cyber text-xs text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fas fa-chart-bar"></i> Estatísticas Base
+          </h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="block text-[10px] text-slate-400 font-cyber">VIDA MÁXIMA</span>
+              <span id="bioHp" class="font-cyber font-bold text-emerald-400 text-base">190</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="block text-[10px] text-slate-400 font-cyber">ATAQUE BASE</span>
+              <span id="bioAtk" class="font-cyber font-bold text-red-400 text-base">28</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="block text-[10px] text-slate-400 font-cyber">DEFESA</span>
+              <span id="bioDef" class="font-cyber font-bold text-blue-400 text-base">12</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-center">
+              <span class="block text-[10px] text-slate-400 font-cyber">AGILIDADE</span>
+              <span id="bioAgi" class="font-cyber font-bold text-amber-400 text-base">16</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-cyber text-xs text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <i class="fas fa-bolt"></i> Habilidades Táticas
+          </h4>
+          <div id="bioSkills" class="space-y-2.5">
+            <!-- Skills list dynamically generated -->
+          </div>
+        </div>
+
+        <button onclick="closeBioModal()" class="w-full mt-6 glass-card py-2.5 rounded-xl border border-cyan-500/40 text-cyan-300 hover:text-white font-cyber text-xs font-bold transition-all">
+          FECHAR BIOGRAFIA
+        </button>
+      </div>
+    </div>
+
   </main>
 
   <footer class="relative z-10 w-full py-4 text-center text-xs text-slate-500 font-cyber border-t border-slate-800/40">
@@ -408,177 +461,123 @@
   </footer>
 
   <script>
-    
-    // SOUND ENGINE
-    let audioCtx = null;
-    let audioEnabled = true;
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-    }
-
-    function toggleAudio() {
-      audioEnabled = !audioEnabled;
-      const icon = document.getElementById('audioIcon');
-      if (audioEnabled) {
-        icon.className = 'fas fa-volume-up text-lg';
-      } else {
-        icon.className = 'fas fa-volume-mute text-lg text-red-400';
-      }
-    }
-
-    function playSound(type) {
-      if (!audioEnabled) return;
-      try {
-        initAudio();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        const now = audioCtx.currentTime;
-
-        if (type === 'hit') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(160, now);
-          osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.15);
-        } else if (type === 'crit') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(450, now);
-          osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
-          gain.gain.setValueAtTime(0.5, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.3);
-        } else if (type === 'cataclysm') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(90, now);
-          osc.frequency.exponentialRampToValueAtTime(15, now + 0.6);
-          gain.gain.setValueAtTime(0.8, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.6);
-        } else if (type === 'portal') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(300, now);
-          osc.frequency.linearRampToValueAtTime(850, now + 0.25);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.25);
-        } else if (type === 'zap') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(700, now);
-          osc.frequency.exponentialRampToValueAtTime(120, now + 0.1);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(now); osc.stop(now + 0.1);
-        }
-      } catch (e) {
-        console.warn("Audio unavailable", e);
-      }
-    }
-
-    // SVG CHARACTER AVATARS
-    const HERO_SVGS = {
-      ladybug: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(255,0,60,0.8)]"><circle cx="50" cy="50" r="42" fill="#ff003c" stroke="#1e293b" stroke-width="4"/><circle cx="50" cy="22" r="7" fill="#000"/><circle cx="28" cy="45" r="7.5" fill="#000"/><circle cx="72" cy="45" r="7.5" fill="#000"/><circle cx="38" cy="72" r="6.5" fill="#000"/><circle cx="62" cy="72" r="6.5" fill="#000"/><path d="M 30 38 Q 50 20 70 38 Q 50 50 30 38 Z" fill="#000"/><ellipse cx="42" cy="38" rx="3" ry="5" fill="#fff"/><ellipse cx="58" cy="38" rx="3" ry="5" fill="#fff"/><circle cx="42" cy="38" r="2" fill="#06b6d4"/><circle cx="58" cy="38" r="2" fill="#06b6d4"/></svg>`,
-      catnoir: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]"><polygon points="20,35 10,10 35,22" fill="#111827" stroke="#10b981" stroke-width="2"/><polygon points="80,35 90,10 65,22" fill="#111827" stroke="#10b981" stroke-width="2"/><circle cx="50" cy="50" r="42" fill="#111827" stroke="#10b981" stroke-width="4"/><path d="M 22 36 Q 50 28 78 36 Q 50 55 22 36 Z" fill="#000"/><ellipse cx="40" cy="38" rx="5" ry="8" fill="#10b981"/><ellipse cx="60" cy="38" rx="5" ry="8" fill="#10b981"/><line x1="40" y1="30" x2="40" y2="46" stroke="#000" stroke-width="2"/><line x1="60" y1="30" x2="60" y2="46" stroke="#000" stroke-width="2"/><circle cx="50" cy="68" r="6" fill="#eab308"/></svg>`,
-      pegasus: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]"><circle cx="50" cy="50" r="42" fill="#0891b2" stroke="#06b6d4" stroke-width="4"/><rect x="25" y="32" width="22" height="16" rx="4" fill="#0f172a" stroke="#06b6d4" stroke-width="2"/><rect x="53" y="32" width="22" height="16" rx="4" fill="#0f172a" stroke="#06b6d4" stroke-width="2"/><line x1="47" y1="40" x2="53" y2="40" stroke="#06b6d4" stroke-width="3"/><circle cx="36" cy="40" r="4" fill="#fff"/><circle cx="64" cy="40" r="4" fill="#fff"/><path d="M 30 70 Q 50 82 70 70" stroke="#155e75" stroke-width="4" fill="none"/></svg>`,
-      renarouge: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(249,115,22,0.8)]"><polygon points="22,35 12,8 38,20" fill="#f97316" stroke="#fff" stroke-width="2"/><polygon points="78,35 88,8 62,20" fill="#f97316" stroke="#fff" stroke-width="2"/><circle cx="50" cy="50" r="42" fill="#ea580c" stroke="#fed7aa" stroke-width="4"/><path d="M 22 36 Q 50 18 78 36 Q 50 58 22 36 Z" fill="#fff"/><ellipse cx="40" cy="38" rx="4" ry="7" fill="#f97316"/><ellipse cx="60" cy="38" rx="4" ry="7" fill="#f97316"/><path d="M 50 50 L 50 78" stroke="#1e293b" stroke-width="4"/></svg>`,
-      hawkmoth: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]"><circle cx="50" cy="50" r="42" fill="#6b21a8" stroke="#a855f7" stroke-width="4"/><path d="M 20 40 Q 50 10 80 40 L 50 85 Z" fill="#3b0764" stroke="#a855f7" stroke-width="2"/><ellipse cx="38" cy="42" rx="6" ry="4" fill="#a855f7"/><ellipse cx="62" cy="42" rx="6" ry="4" fill="#a855f7"/><path d="M 42 62 Q 50 55 58 62 L 50 78 Z" fill="#a855f7"/></svg>`,
-      vesperia: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]"><circle cx="50" cy="50" r="42" fill="#eab308" stroke="#1e293b" stroke-width="4"/><path d="M 10 38 L 90 38 M 12 54 L 88 54 M 20 70 L 80 70" stroke="#000" stroke-width="6"/><path d="M 22 34 Q 50 20 78 34 Q 50 52 22 34 Z" fill="#000"/><ellipse cx="40" cy="36" rx="4" ry="6" fill="#eab308"/><ellipse cx="60" cy="36" rx="4" ry="6" fill="#eab308"/></svg>`,
-      robustus: `<svg viewBox="0 0 100 100" class="w-36 h-36 drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]"><rect x="15" y="15" width="70" height="70" rx="16" fill="#1e293b" stroke="#ef4444" stroke-width="4"/><rect x="25" y="30" width="50" height="20" rx="6" fill="#090d16" stroke="#ef4444" stroke-width="2"/><circle cx="50" cy="40" r="7" fill="#ef4444" class="animate-pulse"/><line x1="50" y1="15" x2="50" y2="2" stroke="#ef4444" stroke-width="4"/><circle cx="50" cy="2" r="4" fill="#ef4444"/><rect x="30" y="62" width="40" height="8" rx="2" fill="#ef4444"/></svg>`
-    };
-
-    // HERO CHARACTER DEFINITIONS
+    // GAME DATABASE & CONSTANTS
     const CHARACTERS = {
       ladybug: {
-        id: 'ladybug', name: 'LadyBug', maxHp: 190, atk: 28, def: 12, agi: 16, crit: 15, accuracy: 95,
-        color: 'ladybug',
+        key: 'ladybug',
+        name: 'Ladybug',
+        role: 'Líder Tática',
+        color: '#ff003c',
+        shadow: 'shadow-neon-red',
+        lore: 'Marinette Dupain-Cheng é a portadora do Miraculous da Joaninha. Ela utiliza raciocínio rápido, agilidade extraordinária e seu Iôiô para desarmar oponentes e inspirar seus aliados com táticas imbatíveis.',
+        hp: 190, atk: 28, def: 12, agi: 16, crit: 15, accuracy: 95,
         skills: {
-          basic: { name: 'Arremesso de Yoyo', type: 'basic', cd: 0, desc: 'Ataque preciso de média distância.' },
-          alt: { name: 'Miraculous', type: 'alt', cd: 2, desc: 'Aumenta seu dano (+35%) por 3 turnos.' },
-          special: { name: 'Prender com Yoyo', type: 'special', cd: 3, desc: 'Atordoa o inimigo por 1 turno e desfere uma sequência pesada.' }
-        }
+          basic: { name: 'Arremesso de Iôiô', desc: 'Ataque rápido à distância que causa dano moderado com alta precisão.' },
+          alt: { name: 'Talismã Miraculous', desc: 'Invoca uma ferramenta de sorte que aumenta seu ataque em +35% por 3 turnos. (CD: 2T)' },
+          special: { name: 'Série de Socos', desc: 'Prende o oponente com o Iôiô, atordoando-o (Stun) por 1 turno e desferindo dano massivo. (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(255,0,60,0.8)]"><circle cx="50" cy="50" r="42" fill="#ff003c" stroke="#1e293b" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#05070e"/><circle cx="30" cy="30" r="8" fill="#05070e"/><circle cx="70" cy="30" r="8" fill="#05070e"/><circle cx="30" cy="70" r="8" fill="#05070e"/><circle cx="70" cy="70" r="8" fill="#05070e"/></svg>`
       },
       catnoir: {
-        id: 'catnoir', name: 'Cat Noir', maxHp: 180, atk: 32, def: 10, agi: 18, crit: 25, accuracy: 90,
-        color: 'catnoir',
+        key: 'catnoir',
+        name: 'Cat Noir',
+        role: 'Atacante Crítico',
+        color: '#10b981',
+        shadow: 'shadow-neon-green',
+        lore: 'Adrien Agreste possui o Miraculous do Gato Preto. Especialista em combates de altíssima velocidade e ataques letais, sua força culmina na capacidade de destruição total.',
+        hp: 180, atk: 32, def: 10, agi: 18, crit: 25, accuracy: 90,
         skills: {
-          basic: { name: 'Garras Felinas', type: 'basic', cd: 0, desc: 'Ataque cortante rápido de curta distância.' },
-          alt: { name: 'Bastão', type: 'alt', cd: 2, desc: 'Golpe com bastão com maior taxa de crítico.' },
-          special: { name: 'Cataclismo', type: 'special', cd: 3, desc: 'Causa exatamente 50% da vida máxima total do alvo.' }
-        }
+          basic: { name: 'Garras Felinas', desc: 'Ataque cortante veloz de curta distância com alta chance de acerto.' },
+          alt: { name: 'Golpe de Bastão', desc: 'Investida tática estendida com +15% adicionais de chance de ataque crítico. (CD: 2T)' },
+          special: { name: 'Cataclismo', desc: 'Sua garra toca o oponente e destrói exatamente 50% de sua VIDA MÁXIMA TOTAL! (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]"><path d="M20 20 L40 45 L15 55 Z" fill="#10b981"/><path d="M80 20 L60 45 L85 55 Z" fill="#10b981"/><circle cx="50" cy="55" r="32" fill="#0f172a" stroke="#10b981" stroke-width="4"/><ellipse cx="38" cy="50" rx="4" ry="10" fill="#10b981"/><ellipse cx="62" cy="50" rx="4" ry="10" fill="#10b981"/><polygon points="50,62 43,70 57,70" fill="#10b981"/></svg>`
       },
       pegasus: {
-        id: 'pegasus', name: 'Pegasus', maxHp: 175, atk: 26, def: 8, agi: 22, crit: 18, accuracy: 92,
-        color: 'pegasus',
+        key: 'pegasus',
+        name: 'Pegasus',
+        role: 'Velocista Espacial',
+        color: '#06b6d4',
+        shadow: 'shadow-neon-cyan',
+        lore: 'Max Kanté utiliza o Miraculous do Cavalo para dominar o espaço-tempo. Através de portais, ele ultrapassa defesas físicas e desfere sequências de golpes imprevisíveis.',
+        hp: 175, atk: 26, def: 8, agi: 22, crit: 18, accuracy: 92,
         skills: {
-          basic: { name: 'Soco Portal', type: 'basic', cd: 0, desc: 'Soco de longa distância que atravessa portais.' },
-          alt: { name: 'Teleporte', type: 'alt', cd: 2, desc: 'Teleporta no ponto cego e ignora a armadura.' },
-          special: { name: 'Multi-Portais', type: 'special', cd: 3, desc: 'Desfere de 6 a 10 socos portais aleatórios.' }
-        }
+          basic: { name: 'Soco Portal', desc: 'Soco direto desferido através de um mini portal interdimensional.' },
+          alt: { name: 'Teleporte Cego', desc: 'Teleporta instantaneamente para trás do inimigo, ignorando 100% da sua Defesa/Armadura. (CD: 2T)' },
+          special: { name: 'Rajada de Portais', desc: 'Abre múltiplos portais e desfere uma sequência furiosa de 6 a 10 golpes contínuos. (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]"><circle cx="50" cy="50" r="38" fill="none" stroke="#06b6d4" stroke-width="6" stroke-dasharray="12 6"/><circle cx="50" cy="50" r="26" fill="#0891b2" opacity="0.6"/><polygon points="50,20 62,40 40,35 60,65 38,60 50,80" fill="#e0f2fe"/></svg>`
       },
       renarouge: {
-        id: 'renarouge', name: 'Rena Rouge', maxHp: 185, atk: 25, def: 11, agi: 20, crit: 20, accuracy: 94,
-        color: 'renarouge',
+        key: 'renarouge',
+        name: 'Rena Rouge',
+        role: 'Mestra das Ilusões',
+        color: '#f97316',
+        shadow: 'shadow-neon-orange',
+        lore: 'Alya Césaire é a detentora do Miraculous da Raposa. Utilizando sua flauta e miragens, ela confunde os oponentes, absorve ataques e cria exércitos ilusórios.',
+        hp: 185, atk: 25, def: 11, agi: 20, crit: 20, accuracy: 94,
         skills: {
-          basic: { name: 'Soco Miragem', type: 'basic', cd: 0, desc: 'Miragem lateral que desfere um soco.' },
-          alt: { name: 'Clone Falso', type: 'alt', cd: 2, desc: 'Cria uma ilusão que absorve 100% do próximo golpe.' },
-          special: { name: 'Exército de Clones', type: 'special', cd: 3, desc: 'Invoca 3 clones para atacar simultaneamente.' }
-        }
+          basic: { name: 'Soco Miragem', desc: 'Ataque projetado por uma ilusão espelhada de resposta rápida.' },
+          alt: { name: 'Clone de Ilusão', desc: 'Cria uma miragem perfeita que absorve completamente o próximo ataque inimigo. (CD: 2T)' },
+          special: { name: 'Exército de Clones', desc: 'Invoca 3 clones de ilusão para realizarem um ataque combinado devastador. (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(249,115,22,0.8)]"><polygon points="50,15 85,80 15,80" fill="#f97316" stroke="#1e293b" stroke-width="4"/><polygon points="50,30 70,75 30,75" fill="#fff font-cyber"/><circle cx="50" cy="55" r="8" fill="#f97316"/></svg>`
       },
       hawkmoth: {
-        id: 'hawkmoth', name: 'Hawk Moth', maxHp: 210, atk: 30, def: 14, agi: 12, crit: 12, accuracy: 88,
-        color: 'hawkmoth',
+        key: 'hawkmoth',
+        name: 'Hawk Moth',
+        role: 'Dominador de Akumas',
+        color: '#a855f7',
+        shadow: 'shadow-neon-purple',
+        lore: 'Gabriel Agreste utiliza o Miraculous da Borboleta. Um manipulador poderoso que utiliza akumas para amplificar suas capacidades de combate e enfraquecer seus adversários.',
+        hp: 210, atk: 30, def: 14, agi: 12, crit: 12, accuracy: 88,
         skills: {
-          basic: { name: 'Golpe de Cajado', type: 'basic', cd: 0, desc: 'Ataque físico de média distância.' },
-          alt: { name: 'Bola de Akuma', type: 'alt', cd: 2, desc: 'Atordoa e reduz a força do alvo em 20% por 2 turnos.' },
-          special: { name: 'Akumatizado', type: 'special', cd: 3, desc: 'Invocação com dano inicial que dobra seu dano por 2 turnos.' }
-        }
+          basic: { name: 'Golpe de Cajado', desc: 'Ataque físico pesado e direto utilizando seu cajado estilizado.' },
+          alt: { name: 'Akumatizado', desc: 'Fortalece a si mesmo com energia sombria, dobrando seu ataque (+100% ATK) por 2 turnos. (CD: 2T)' },
+          special: { name: 'Bola de Akuma', desc: 'Esfera energética akumatizada que causa dano, atordoa (Stun) e reduz o ATK inimigo em -20%. (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(168,85,247,0.8)]"><path d="M10 30 Q50 10 90 30 Q50 90 10 30 Z" fill="#a855f7" stroke="#3b0764" stroke-width="4"/><circle cx="50" cy="40" r="12" fill="#3b0764"/><polygon points="50,20 40,40 60,40" fill="#e9d5ff"/></svg>`
       },
       vesperia: {
-        id: 'vesperia', name: 'Vesperia', maxHp: 200, atk: 27, def: 15, agi: 14, crit: 15, accuracy: 93,
-        color: 'vesperia',
+        key: 'vesperia',
+        name: 'Vesperia',
+        role: 'Incapacitadora Pegajosa',
+        color: '#eab308',
+        shadow: 'shadow-neon-gold',
+        lore: 'Zoé Lee carrega o Miraculous da Abelha. Com ataques perfurantes, venenos desaceleradores e enxames estratégicos, ela imobiliza os adversários com maestria.',
+        hp: 200, atk: 27, def: 15, agi: 14, crit: 15, accuracy: 93,
         skills: {
-          basic: { name: 'Soco de Ferrão', type: 'basic', cd: 0, desc: 'Soco perfurante de curta distância.' },
-          alt: { name: 'Disparos de Mel', type: 'alt', cd: 2, desc: 'Desacelera o inimigo e reduz sua precisão.' },
-          special: { name: 'Colmeia', type: 'special', cd: 3, desc: 'Abelhas causam de 20% a 33.3% da vida máxima do inimigo.' }
-        }
+          basic: { name: 'Soco de Ferrão', desc: 'Ataque físico perfurante que ignora parte da armadura base.' },
+          alt: { name: 'Disparo de Mel', desc: 'Jato pegajoso que reduz a Velocidade inimiga em -30% e sua Precisão por 2 turnos. (CD: 2T)' },
+          special: { name: 'Enxame de Abelhas', desc: 'Convoca a colmeia para causar um dano massivo equivalente entre 20% e 33% da Vida total do alvo. (CD: 3T)' }
+        },
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_12px_rgba(234,179,8,0.8)]"><path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="#eab308" stroke="#1e293b" stroke-width="4"/><line x1="15" y1="45" x2="85" y2="45" stroke="#05070e" stroke-width="8"/><line x1="20" y1="60" x2="80" y2="60" stroke="#05070e" stroke-width="8"/></svg>`
       }
     };
 
     const ROBUSTUS_BOSS = {
-      id: 'robustus', name: 'Robustus (O Robô)', maxHp: 230, atk: 22, def: 10, agi: 14, crit: 10, accuracy: 80,
-      color: 'robustus',
+      key: 'robustus',
+      name: 'Robustus',
+      role: 'Chefe Robô Cibernético',
+      color: '#ef4444',
+      shadow: 'shadow-neon-red',
+      hp: 230, atk: 22, def: 10, agi: 14, crit: 10, accuracy: 80,
       skills: {
-        basic: { name: 'Disparo de Drones', type: 'basic', cd: 0, desc: 'Drones disparam munição pesada.' },
-        alt: { name: 'Fios Elétricos', type: 'alt', cd: 2, desc: 'Choque elétrico que reduz a precisão do oponente.' },
-        special: { name: 'Onda Sonora', type: 'special', cd: 3, desc: 'Onda destrutiva com chance de atordoamento.' }
-      }
+        basic: { name: 'Metralhadora de Drones', desc: 'Disparo de projéteis de alta velocidade.' },
+        alt: { name: 'Fios Elétricos', desc: 'Descarga elétrica que causa dano e reduz a precisão do oponente por 2 turnos. (CD: 2T)' },
+        special: { name: 'Onda Sonora', desc: 'Pulso de choque em área com chance de atordoar (Stun). (CD: 3T)' }
+      },
+      svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(239,68,68,0.9)]"><rect x="20" y="20" width="60" height="60" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="5"/><circle cx="35" cy="40" r="8" fill="#ef4444" class="animate-pulse"/><circle cx="65" cy="40" r="8" fill="#ef4444" class="animate-pulse"/><rect x="35" y="60" width="30" height="8" rx="4" fill="#64748b"/><line x1="50" y1="20" x2="50" y2="5" stroke="#ef4444" stroke-width="4"/><circle cx="50" cy="5" r="4" fill="#ef4444"/></svg>`
     };
 
-    
+    // GAME STATE VARIABLES
     let gameMode = 'pvp'; // 'pvp' or 'story'
     let storyDifficulty = 'medium'; // 'easy', 'medium', 'hard'
-    let selectionStep = 1; // 1: P1, 2: P2
-    let currentTurnIndex = 0; // 0: P1, 1: P2
+    let selectionStep = 1; // 1 for P1, 2 for P2
+    let activeTurn = 0; // 0 for P1, 1 for P2
     let combatActionLocked = false;
+    let audioMuted = false;
+    let audioCtx = null;
 
     let players = [null, null];
 
@@ -586,26 +585,12 @@
       active: false,
       bossHp: 100,
       playerHp: 100,
-      maxPlayerHp: 100,
       drones: [],
-      spawnTimer: null,
       damageTimer: null
     };
 
-
-    function backToModeSelect() {
-      document.getElementById('screenDifficultySelect').classList.add('hidden');
-      document.getElementById('screenHeroSelect').classList.add('hidden');
-      document.getElementById('screenBattle').classList.add('hidden');
-      document.getElementById('screenMinigame').classList.add('hidden');
-      document.getElementById('screenModeSelect').classList.remove('hidden');
-      document.getElementById('screenModeSelect').classList.add('flex');
-    }
-
     function showDifficultySelect() {
-      gameMode = 'story';
       document.getElementById('screenModeSelect').classList.add('hidden');
-      document.getElementById('screenModeSelect').classList.remove('flex');
       document.getElementById('screenDifficultySelect').classList.remove('hidden');
       document.getElementById('screenDifficultySelect').classList.add('flex');
     }
@@ -619,46 +604,65 @@
 
     function selectGameMode(mode) {
       gameMode = mode;
-      document.getElementById('screenModeSelect').classList.add('hidden');
-      document.getElementById('screenModeSelect').classList.remove('flex');
-      startHeroSelect();
+      if (mode === 'story') {
+        showDifficultySelect();
+      } else {
+        document.getElementById('screenModeSelect').classList.add('hidden');
+        startHeroSelect();
+      }
+    }
+
+    function backToModeSelect() {
+      document.getElementById('screenDifficultySelect').classList.add('hidden');
+      document.getElementById('screenDifficultySelect').classList.remove('flex');
+      document.getElementById('screenHeroSelect').classList.add('hidden');
+      document.getElementById('screenHeroSelect').classList.remove('flex');
+      document.getElementById('screenBattle').classList.add('hidden');
+      document.getElementById('screenBattle').classList.remove('flex');
+      document.getElementById('screenMinigame').classList.add('hidden');
+      document.getElementById('screenMinigame').classList.remove('flex');
+
+      document.getElementById('screenModeSelect').classList.remove('hidden');
+      selectionStep = 1;
     }
 
     function startHeroSelect() {
       selectionStep = 1;
-      players = [null, null];
       const title = document.getElementById('selectionTitle');
-      title.innerText = gameMode === 'story' ? "MODO HISTÓRIA: Escolha seu Campeão" : "JOGADOR 1: Escolha seu Herói";
-      
+      title.innerText = "JOGADOR 1: Escolha seu Herói";
+
       const grid = document.getElementById('heroGrid');
       grid.innerHTML = '';
 
       Object.keys(CHARACTERS).forEach(key => {
         const char = CHARACTERS[key];
         const card = document.createElement('div');
-        card.className = `glass-card p-5 rounded-2xl border border-slate-700 hover:border-cyan-400 cursor-pointer flex flex-col justify-between transition-all group`;
-        card.onclick = () => selectHero(key);
+        card.className = `glass-card p-5 rounded-2xl border border-slate-700/60 flex flex-col justify-between relative group hover:border-cyan-400 cursor-pointer shadow-lg`;
 
         card.innerHTML = `
-          <div>
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="font-cyber font-bold text-lg text-white group-hover:text-cyan-300">${char.name}</h3>
-              <span class="text-[10px] font-cyber px-2 py-0.5 rounded bg-slate-800 text-cyan-400 border border-cyan-500/30">HP ${char.maxHp}</span>
-            </div>
-            <div class="w-full h-32 flex items-center justify-center my-2 group-hover:scale-105 transition-transform">
-              ${HERO_SVGS[char.id]}
-            </div>
-            <div class="grid grid-cols-4 gap-1 text-[10px] text-slate-400 text-center my-3 bg-slate-900/60 p-2 rounded-lg">
-              <div><span class="block text-slate-500">ATQ</span> <strong>${char.atk}</strong></div>
-              <div><span class="block text-slate-500">DEF</span> <strong>${char.def}</strong></div>
-              <div><span class="block text-slate-500">VEL</span> <strong>${char.agi}</strong></div>
-              <div><span class="block text-slate-500">CRIT</span> <strong>${char.crit}%</strong></div>
-            </div>
-          </div>
-          <button class="w-full py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 font-cyber text-xs font-bold group-hover:bg-cyan-500 group-hover:text-black transition-all">
-            ESCOLHER
+          <button onclick="event.stopPropagation(); openBioModal('${char.key}')" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-800/80 border border-slate-600 text-cyan-400 hover:text-white flex items-center justify-center transition-all z-20 hover:scale-110" title="Biografia">
+            <i class="fas fa-info text-xs"></i>
           </button>
+          <div onclick="selectHero('${char.key}')" class="w-full flex flex-col items-center">
+            <div class="w-24 h-24 my-2 flex items-center justify-center float-anim">
+              ${char.svg}
+            </div>
+            <span class="text-[10px] font-cyber text-cyan-400 uppercase tracking-widest block font-bold mt-1">${char.role}</span>
+            <h3 class="font-cyber font-bold text-xl text-white mb-2">${char.name}</h3>
+            
+            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-300 w-full my-2 bg-slate-900/50 p-2 rounded-xl border border-slate-800">
+              <div><span class="text-slate-500">HP:</span> <strong>${char.hp}</strong></div>
+              <div><span class="text-slate-500">ATQ:</span> <strong>${char.atk}</strong></div>
+              <div><span class="text-slate-500">DEF:</span> <strong>${char.def}</strong></div>
+              <div><span class="text-slate-500">VEL:</span> <strong>${char.agi}</strong></div>
+            </div>
+
+            <button class="w-full mt-3 glass-card py-2 rounded-xl border border-cyan-500/30 text-cyan-300 font-cyber text-xs font-bold group-hover:border-cyan-400 group-hover:text-white transition-all">
+              SELECIONAR HERÓI
+            </button>
+          </div>
         `;
+
         grid.appendChild(card);
       });
 
@@ -666,462 +670,463 @@
       document.getElementById('screenHeroSelect').classList.add('flex');
     }
 
-    function createPlayerState(charData, label) {
+    function openBioModal(charKey) {
+      const char = CHARACTERS[charKey];
+      if (!char) return;
+
+      document.getElementById('bioAvatar').innerHTML = char.svg;
+      document.getElementById('bioName').innerText = char.name;
+      document.getElementById('bioRole').innerText = char.role;
+      document.getElementById('bioLore').innerText = char.lore;
+
+      document.getElementById('bioHp').innerText = char.hp;
+      document.getElementById('bioAtk').innerText = char.atk;
+      document.getElementById('bioDef').innerText = char.def;
+      document.getElementById('bioAgi').innerText = char.agi;
+
+      const skillsContainer = document.getElementById('bioSkills');
+      skillsContainer.innerHTML = `
+        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-cyber text-xs font-bold text-cyan-400">${char.skills.basic.name}</span>
+            <span class="text-[10px] text-slate-400 font-cyber">Atq Básico</span>
+          </div>
+          <p class="text-xs text-slate-300">${char.skills.basic.desc}</p>
+        </div>
+
+        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-cyber text-xs font-bold text-amber-400">${char.skills.alt.name}</span>
+            <span class="text-[10px] text-amber-400/80 font-cyber font-bold">Cooldown: 2 Turnos</span>
+          </div>
+          <p class="text-xs text-slate-300">${char.skills.alt.desc}</p>
+        </div>
+
+        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-cyber text-xs font-bold text-red-400">${char.skills.special.name}</span>
+            <span class="text-[10px] text-red-400/80 font-cyber font-bold">Cooldown: 3 Turnos</span>
+          </div>
+          <p class="text-xs text-slate-300">${char.skills.special.desc}</p>
+        </div>
+      `;
+
+      const modal = document.getElementById('bioModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBioModal() {
+      const modal = document.getElementById('bioModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function selectHero(heroKey) {
+      const char = CHARACTERS[heroKey];
+      if (selectionStep === 1) {
+        players[0] = createPlayerState(char, 1);
+        if (gameMode === 'story') {
+          players[1] = createPlayerState(ROBUSTUS_BOSS, 2);
+          startBattle();
+        } else {
+          selectionStep = 2;
+          const title = document.getElementById('selectionTitle');
+          title.innerText = "JOGADOR 2: Escolha seu Herói";
+        }
+      } else if (selectionStep === 2) {
+        players[1] = createPlayerState(char, 2);
+        startBattle();
+      }
+    }
+
+    function createPlayerState(charData, playerNum) {
       return {
-        label: label,
+        playerNum: playerNum,
         data: charData,
-        hp: charData.maxHp,
-        maxHp: charData.maxHp,
+        currentHp: charData.hp,
+        maxHp: charData.hp,
         atk: charData.atk,
         def: charData.def,
         agi: charData.agi,
         crit: charData.crit,
         accuracy: charData.accuracy,
-        // Match start cooldowns: Alt=2, Special=3
-        altCd: 2,
-        specialCd: 3,
-        stunned: false,
-        shield: 0,
+        cdAlt: 2, // MANDATORY START COOLDOWN: 2 TURNS
+        cdSpecial: 3, // MANDATORY START COOLDOWN: 3 TURNS
         buffs: {
-          atkBoost: 0, // multiplier
-          atkTurns: 0,
-          doubleAtkTurns: 0,
-          slowTurns: 0,
-          atkDebuffTurns: 0
+          atkBoost: 0,
+          stunned: false,
+          illusionShield: false,
+          accuracyDebuff: 0,
+          speedDebuff: 0
         }
       };
     }
 
-    function selectHero(heroKey) {
-      const char = CHARACTERS[heroKey];
-      playSound('hit');
-
-      if (gameMode === 'pvp') {
-        if (selectionStep === 1) {
-          players[0] = createPlayerState(char, "Jogador 1");
-          selectionStep = 2;
-          document.getElementById('selectionTitle').innerText = "JOGADOR 2: Escolha seu Herói";
-        } else {
-          players[1] = createPlayerState(char, "Jogador 2");
-          startBattle();
-        }
-      } else {
-        players[0] = createPlayerState(char, "Jogador 1");
-        players[1] = createPlayerState(ROBUSTUS_BOSS, "Robustus (Boss)");
-        startBattle();
-      }
-    }
-
-
     function startBattle() {
       document.getElementById('screenHeroSelect').classList.add('hidden');
+      document.getElementById('screenHeroSelect').classList.remove('flex');
       document.getElementById('screenBattle').classList.remove('hidden');
       document.getElementById('screenBattle').classList.add('flex');
 
-      // Decide turn based on speed/agility
-      currentTurnIndex = players[0].agi >= players[1].agi ? 0 : 1;
-      combatActionLocked = false;
-
       document.getElementById('combatLog').innerHTML = '';
-      logMessage(`A batalha começou! ${players[currentTurnIndex].data.name} ganha a iniciativa!`, 'system');
+      logMessage(`A Batalha começou!`, 'system');
+      logMessage(`Regra Tática: Habilidades Alternativas iniciam em Recarga de 2T e Especiais em 3T.`, 'system');
 
-      updateBattleUI();
+      // Determine starting player based on Speed (Agility)
+      if (players[0].agi >= players[1].agi) {
+        activeTurn = 0;
+      } else {
+        activeTurn = 1;
+      }
+
+      setupBattleUI();
       checkTurnStart();
     }
 
+    function setupBattleUI() {
+      // Setup Player 1
+      document.getElementById('p1Name').innerText = players[0].data.name;
+      document.getElementById('p1Label').innerText = gameMode === 'story' ? 'SEU HERÓI' : 'JOGADOR 1';
+      document.getElementById('p1Atk').innerText = players[0].atk;
+      document.getElementById('p1Def').innerText = players[0].def;
+      document.getElementById('p1Agi').innerText = players[0].agi;
+      document.getElementById('p1Crit').innerText = `${players[0].crit}%`;
+      document.getElementById('p1AvatarContainer').innerHTML = players[0].data.svg;
+
+      document.getElementById('p1BasicName').innerText = players[0].data.skills.basic.name;
+      document.getElementById('p1AltName').innerText = players[0].data.skills.alt.name;
+      document.getElementById('p1SpecialName').innerText = players[0].data.skills.special.name;
+
+      // Setup Player 2 / Boss
+      document.getElementById('p2Name').innerText = players[1].data.name;
+      document.getElementById('p2Label').innerText = gameMode === 'story' ? 'CHEFE' : 'JOGADOR 2';
+      document.getElementById('p2Atk').innerText = players[1].atk;
+      document.getElementById('p2Def').innerText = players[1].def;
+      document.getElementById('p2Agi').innerText = players[1].agi;
+      document.getElementById('p2Crit').innerText = `${players[1].crit}%`;
+      document.getElementById('p2AvatarContainer').innerHTML = players[1].data.svg;
+
+      document.getElementById('p2BasicName').innerText = players[1].data.skills.basic.name;
+      document.getElementById('p2AltName').innerText = players[1].data.skills.alt.name;
+      document.getElementById('p2SpecialName').innerText = players[1].data.skills.special.name;
+
+      updateBattleUI();
+    }
+
     function updateBattleUI() {
-      // P1 UI
-      const p1 = players[0];
-      document.getElementById('p1Label').innerText = p1.label;
-      document.getElementById('p1Name').innerText = p1.data.name;
-      document.getElementById('p1HpText').innerText = `${Math.max(0, Math.floor(p1.hp))} / ${p1.maxHp}`;
-      document.getElementById('p1HpBar').style.width = `${Math.max(0, (p1.hp / p1.maxHp) * 100)}%`;
-      document.getElementById('p1Atk').innerText = Math.floor(getEffectiveAtk(p1));
-      document.getElementById('p1Def').innerText = p1.def;
-      document.getElementById('p1Agi').innerText = p1.agi;
-      document.getElementById('p1Crit').innerText = `${p1.crit}%`;
-      document.getElementById('p1AvatarContainer').innerHTML = HERO_SVGS[p1.data.id];
+      for (let i = 0; i < 2; i++) {
+        const p = players[i];
+        const prefix = i === 0 ? 'p1' : 'p2';
 
-      // P1 Cooldowns & skill names
-      document.getElementById('p1BasicName').innerText = p1.data.skills.basic.name;
-      document.getElementById('p1AltName').innerText = p1.data.skills.alt.name;
-      document.getElementById('p1SpecialName').innerText = p1.data.skills.special.name;
-      document.getElementById('p1AltCd').innerText = p1.altCd > 0 ? `CD: ${p1.altCd} T` : 'Pronto';
-      document.getElementById('p1SpecialCd').innerText = p1.specialCd > 0 ? `CD: ${p1.specialCd} T` : 'Pronto';
+        const hpPct = Math.max(0, Math.min(100, (p.currentHp / p.maxHp) * 100));
+        document.getElementById(`${prefix}HpBar`).style.width = `${hpPct}%`;
+        document.getElementById(`${prefix}HpText`).innerText = `${Math.max(0, Math.ceil(p.currentHp))} / ${p.maxHp}`;
 
-      // P2 UI
-      const p2 = players[1];
-      document.getElementById('p2Label').innerText = p2.label;
-      document.getElementById('p2Name').innerText = p2.data.name;
-      document.getElementById('p2HpText').innerText = `${Math.max(0, Math.floor(p2.hp))} / ${p2.maxHp}`;
-      document.getElementById('p2HpBar').style.width = `${Math.max(0, (p2.hp / p2.maxHp) * 100)}%`;
-      document.getElementById('p2Atk').innerText = Math.floor(getEffectiveAtk(p2));
-      document.getElementById('p2Def').innerText = p2.def;
-      document.getElementById('p2Agi').innerText = p2.agi;
-      document.getElementById('p2Crit').innerText = `${p2.crit}%`;
-      document.getElementById('p2AvatarContainer').innerHTML = HERO_SVGS[p2.data.id];
+        document.getElementById(`${prefix}AltCd`).innerText = p.cdAlt > 0 ? `CD: ${p.cdAlt} T` : 'Pronto';
+        document.getElementById(`${prefix}SpecialCd`).innerText = p.cdSpecial > 0 ? `CD: ${p.cdSpecial} T` : 'Pronto';
 
-      // P2 Cooldowns & skill names
-      document.getElementById('p2BasicName').innerText = p2.data.skills.basic.name;
-      document.getElementById('p2AltName').innerText = p2.data.skills.alt.name;
-      document.getElementById('p2SpecialName').innerText = p2.data.skills.special.name;
-      document.getElementById('p2AltCd').innerText = p2.altCd > 0 ? `CD: ${p2.altCd} T` : 'Pronto';
-      document.getElementById('p2SpecialCd').innerText = p2.specialCd > 0 ? `CD: ${p2.specialCd} T` : 'Pronto';
+        // Update Badges
+        const badgesContainer = document.getElementById(`${prefix}StatusBadges`);
+        badgesContainer.innerHTML = '';
 
-      // Status Badges
-      renderBadges(0, 'p1StatusBadges');
-      renderBadges(1, 'p2StatusBadges');
-
-      // Controls visibility
-      if (gameMode === 'story') {
-        document.getElementById('p2Controls').classList.add('invisible');
-      } else {
-        document.getElementById('p2Controls').classList.remove('invisible');
-      }
-
-      // Turn banner
-      const activeP = players[currentTurnIndex];
-      document.getElementById('turnBannerText').innerText = `TURNO DE ${activeP.data.name.toUpperCase()}`;
-      
-      // Highlight Active Card
-      if (currentTurnIndex === 0) {
-        document.getElementById('p1Card').classList.add('border-cyan-400', 'shadow-neon-cyan');
-        document.getElementById('p2Card').classList.remove('border-red-400', 'shadow-neon-red');
-      } else {
-        document.getElementById('p2Card').classList.add('border-red-400', 'shadow-neon-red');
-        document.getElementById('p1Card').classList.remove('border-cyan-400', 'shadow-neon-cyan');
-      }
-
-      // Enable/Disable Control Buttons
-      toggleButtons(0, currentTurnIndex === 0 && !combatActionLocked);
-      toggleButtons(1, currentTurnIndex === 1 && gameMode === 'pvp' && !combatActionLocked);
-    }
-
-    function toggleButtons(pIdx, enabled) {
-      const p = players[pIdx];
-      const prefix = pIdx === 0 ? 'p1' : 'p2';
-
-      const btnBasic = document.getElementById(`${prefix}BtnBasic`);
-      const btnAlt = document.getElementById(`${prefix}BtnAlt`);
-      const btnSpecial = document.getElementById(`${prefix}BtnSpecial`);
-
-      btnBasic.disabled = !enabled;
-      btnAlt.disabled = !enabled || p.altCd > 0;
-      btnSpecial.disabled = !enabled || p.specialCd > 0;
-
-      [btnBasic, btnAlt, btnSpecial].forEach(btn => {
-        if (btn.disabled) {
-          btn.classList.add('opacity-40', 'cursor-not-allowed');
-        } else {
-          btn.classList.remove('opacity-40', 'cursor-not-allowed');
+        if (p.buffs.stunned) {
+          badgesContainer.innerHTML += `<span class="bg-red-900/80 border border-red-500 text-red-200 text-[9px] px-2 py-0.5 rounded-full font-cyber animate-pulse">STUN</span>`;
         }
-      });
+        if (p.buffs.atkBoost > 0) {
+          badgesContainer.innerHTML += `<span class="bg-amber-900/80 border border-amber-500 text-amber-200 text-[9px] px-2 py-0.5 rounded-full font-cyber">+ATQ (${p.buffs.atkBoost}T)</span>`;
+        }
+        if (p.buffs.illusionShield) {
+          badgesContainer.innerHTML += `<span class="bg-cyan-900/80 border border-cyan-500 text-cyan-200 text-[9px] px-2 py-0.5 rounded-full font-cyber">ESCUDO</span>`;
+        }
+      }
+
+      // Highlight active turn card
+      const p1Card = document.getElementById('p1Card');
+      const p2Card = document.getElementById('p2Card');
+
+      if (activeTurn === 0) {
+        p1Card.classList.add('border-cyan-400', 'shadow-neon-cyan');
+        p2Card.classList.remove('border-cyan-400', 'shadow-neon-cyan', 'border-red-500', 'shadow-neon-red');
+        document.getElementById('turnBannerText').innerText = `TURNO DE ${players[0].data.name.toUpperCase()}`;
+      } else {
+        p2Card.classList.add(gameMode === 'story' ? 'border-red-500' : 'border-cyan-400', gameMode === 'story' ? 'shadow-neon-red' : 'shadow-neon-cyan');
+        p1Card.classList.remove('border-cyan-400', 'shadow-neon-cyan');
+        document.getElementById('turnBannerText').innerText = `TURNO DE ${players[1].data.name.toUpperCase()}`;
+      }
+
+      updateControlButtons();
     }
 
-    function renderBadges(pIdx, elementId) {
-      const p = players[pIdx];
-      const container = document.getElementById(elementId);
-      container.innerHTML = '';
+    function updateControlButtons() {
+      const p1IsActive = activeTurn === 0 && !combatActionLocked;
+      const p2IsActive = activeTurn === 1 && !combatActionLocked && (gameMode === 'pvp');
 
-      if (p.stunned) {
-        container.innerHTML += `<span class="px-1.5 py-0.5 text-[9px] font-cyber bg-purple-900/80 text-purple-300 rounded border border-purple-500">STUN</span>`;
-      }
-      if (p.shield > 0) {
-        container.innerHTML += `<span class="px-1.5 py-0.5 text-[9px] font-cyber bg-blue-900/80 text-blue-300 rounded border border-blue-500">CLONE</span>`;
-      }
-      if (p.buffs.atkTurns > 0) {
-        container.innerHTML += `<span class="px-1.5 py-0.5 text-[9px] font-cyber bg-amber-900/80 text-amber-300 rounded border border-amber-500">+DANO (${p.buffs.atkTurns}T)</span>`;
-      }
-      if (p.buffs.doubleAtkTurns > 0) {
-        container.innerHTML += `<span class="px-1.5 py-0.5 text-[9px] font-cyber bg-red-900/80 text-red-300 rounded border border-red-500">2x DANO (${p.buffs.doubleAtkTurns}T)</span>`;
-      }
-      if (p.buffs.atkDebuffTurns > 0) {
-        container.innerHTML += `<span class="px-1.5 py-0.5 text-[9px] font-cyber bg-slate-800 text-red-400 rounded border border-red-800">-20% ATQ</span>`;
-      }
-    }
+      // Player 1 controls
+      document.getElementById('p1BtnBasic').disabled = !p1IsActive || players[0].buffs.stunned;
+      document.getElementById('p1BtnAlt').disabled = !p1IsActive || players[0].cdAlt > 0 || players[0].buffs.stunned;
+      document.getElementById('p1BtnSpecial').disabled = !p1IsActive || players[0].cdSpecial > 0 || players[0].buffs.stunned;
 
-    function getEffectiveAtk(p) {
-      let base = p.atk;
-      if (p.buffs.atkTurns > 0) base *= 1.35;
-      if (p.buffs.doubleAtkTurns > 0) base *= 2.0;
-      if (p.buffs.atkDebuffTurns > 0) base *= 0.8;
-      return base;
+      // Player 2 controls
+      document.getElementById('p2BtnBasic').disabled = !p2IsActive || players[1].buffs.stunned;
+      document.getElementById('p2BtnAlt').disabled = !p2IsActive || players[1].cdAlt > 0 || players[1].buffs.stunned;
+      document.getElementById('p2BtnSpecial').disabled = !p2IsActive || players[1].cdSpecial > 0 || players[1].buffs.stunned;
     }
 
     function checkTurnStart() {
-      const p = players[currentTurnIndex];
+      combatActionLocked = false;
+      const p = players[activeTurn];
 
-      // Check stun
-      if (p.stunned) {
-        logMessage(`${p.data.name} está atordoado e perdeu o turno!`, 'warning');
-        p.stunned = false;
+      // Reduce Buff Timers
+      if (p.buffs.atkBoost > 0) p.buffs.atkBoost--;
+      if (p.buffs.accuracyDebuff > 0) p.buffs.accuracyDebuff--;
+      if (p.buffs.speedDebuff > 0) p.buffs.speedDebuff--;
+
+      if (p.buffs.stunned) {
+        logMessage(`${p.data.name} está atordoado e perdeu o turno!`, 'warn');
+        p.buffs.stunned = false;
         setTimeout(() => {
           endTurn();
         }, 1200);
         return;
       }
 
-      // Story mode AI turn auto-trigger
-      if (gameMode === 'story' && currentTurnIndex === 1) {
+      updateBattleUI();
+
+      // Trigger AI turn if Story Mode and turn is Robustus (Player 2)
+      if (gameMode === 'story' && activeTurn === 1) {
         combatActionLocked = true;
         setTimeout(() => {
-          handleAITurn();
+          executeBossAI();
         }, 1000);
       }
     }
 
+    function executeBossAI() {
+      const boss = players[1];
+      const target = players[0];
 
-    function executeSkill(pIdx, skillType) {
-      if (pIdx !== currentTurnIndex) return;
+      let chosenSkill = 'basic';
+
+      if (storyDifficulty === 'easy') {
+        const rand = Math.random();
+        if (rand > 0.6 && boss.cdSpecial === 0) chosenSkill = 'special';
+        else if (rand > 0.3 && boss.cdAlt === 0) chosenSkill = 'alt';
+      } else if (storyDifficulty === 'medium') {
+        if (boss.cdSpecial === 0) chosenSkill = 'special';
+        else if (boss.cdAlt === 0) chosenSkill = 'alt';
+      } else if (storyDifficulty === 'hard') {
+        // Advanced combo logic
+        if (boss.cdSpecial === 0 && !target.buffs.stunned) chosenSkill = 'special';
+        else if (boss.cdAlt === 0) chosenSkill = 'alt';
+        else chosenSkill = 'basic';
+      }
+
+      combatActionLocked = false;
+      executeSkill(1, chosenSkill);
+    }
+
+    function executeSkill(playerIdx, skillType) {
+      if (combatActionLocked) return;
+      if (activeTurn !== playerIdx) return;
+
+      const attacker = players[playerIdx];
+      const defender = players[playerIdx === 0 ? 1 : 0];
+      const defenderCardId = playerIdx === 0 ? 'p2Card' : 'p1Card';
+
       combatActionLocked = true;
 
-      const attacker = players[pIdx];
-      const defender = players[1 - pIdx];
-      const skill = attacker.data.skills[skillType];
-
-      logMessage(`${attacker.data.name} usou **${skill.name}**!`, 'action');
-
-      // Set cooldowns
-      if (skillType === 'alt') attacker.altCd = skill.cd + 1;
-      if (skillType === 'special') attacker.specialCd = skill.cd + 1;
-
-      // Accuracy check
-      let effAcc = attacker.accuracy;
-      if (attacker.buffs.slowTurns > 0) effAcc -= 20;
-
-      if (Math.random() * 100 > effAcc) {
-        logMessage(`O ataque de ${attacker.data.name} errou o alvo!`, 'miss');
+      // Accuracy Check
+      const effectiveAcc = attacker.accuracy - (attacker.buffs.accuracyDebuff > 0 ? 20 : 0);
+      if (Math.random() * 100 > effectiveAcc) {
+        logMessage(`${attacker.data.name} tentou usar ${skillType} mas ERROU o ataque!`, 'warn');
         playSound('zap');
         finishAction();
         return;
       }
 
-      // Check defender illusion clone shield
-      if (defender.shield > 0 && skillType !== 'special') {
-        defender.shield = 0;
-        logMessage(`A miragem de ${defender.data.name} absorveu todo o ataque!`, 'special');
-        playSound('portal');
+      // Check Illusion Shield
+      if (defender.buffs.illusionShield && skillType !== 'alt') {
+        defender.buffs.illusionShield = false;
+        logMessage(`${defender.data.name} usou um Clone de Ilusão e ABSORVEU o ataque completamente!`, 'buff');
+        playSound('zap');
         finishAction();
         return;
       }
 
-      // Skill logic router
-      processHeroSkill(attacker, defender, skillType);
-    }
+      let rawDmg = 0;
+      let isCrit = Math.random() * 100 < attacker.crit;
+      let soundType = 'hit';
 
-    function processHeroSkill(attacker, defender, skillType) {
-      const charId = attacker.data.id;
-      let rawDamage = getEffectiveAtk(attacker);
-      let isCrit = Math.random() * 100 <= attacker.crit;
-      if (isCrit) rawDamage *= 1.5;
+      // SKILL UNIQUE SPECIFICS
+      if (attacker.data.key === 'ladybug') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.1;
+        } else if (skillType === 'alt') {
+          attacker.buffs.atkBoost = 3;
+          attacker.cdAlt = 3;
+          logMessage(`Ladybug usou Talismã Miraculous! Ataque aumentado por 3 turnos!`, 'buff');
+          playSound('buff');
+          finishAction();
+          return;
+        } else if (skillType === 'special') {
+          rawDmg = attacker.atk * 1.8;
+          defender.buffs.stunned = true;
+          attacker.cdSpecial = 4;
+          logMessage(`Ladybug prendeu o oponente com o Iôiô! Dano pesado e ATORDOAMENTO!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'catnoir') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.15;
+        } else if (skillType === 'alt') {
+          rawDmg = attacker.atk * 1.3;
+          isCrit = Math.random() * 100 < (attacker.crit + 15);
+          attacker.cdAlt = 3;
+        } else if (skillType === 'special') {
+          // CATACLYSM: Exactly 50% of Total Max HP
+          rawDmg = defender.maxHp * 0.5;
+          attacker.cdSpecial = 4;
+          logMessage(`CATACLISMO! Cat Noir destruiu 50% da vida total do adversário!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'pegasus') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.05;
+        } else if (skillType === 'alt') {
+          // Ignores Defense
+          rawDmg = attacker.atk * 1.4 + defender.def; 
+          attacker.cdAlt = 3;
+          logMessage(`Pegasus teleportou para o ponto cego, ignorando a armadura!`, 'buff');
+        } else if (skillType === 'special') {
+          const hits = Math.floor(Math.random() * 5) + 6; // 6 to 10 hits
+          rawDmg = (attacker.atk * 0.25) * hits;
+          attacker.cdSpecial = 4;
+          logMessage(`Pegasus desferiu uma Rajada de Portais com ${hits} golpes rápidos!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'renarouge') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.0;
+        } else if (skillType === 'alt') {
+          attacker.buffs.illusionShield = true;
+          attacker.cdAlt = 3;
+          logMessage(`Rena Rouge criou um Clone de Ilusão que protegerá o próximo golpe!`, 'buff');
+          playSound('buff');
+          finishAction();
+          return;
+        } else if (skillType === 'special') {
+          rawDmg = attacker.atk * 1.75;
+          attacker.cdSpecial = 4;
+          logMessage(`Exército de Clones! Três ilusões atacam simultaneamente!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'hawkmoth') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.1;
+        } else if (skillType === 'alt') {
+          // Akumatizado: Doubles Attack Power for 2 turns
+          attacker.buffs.atkBoost = 2;
+          attacker.cdAlt = 3;
+          logMessage(`Hawk Moth se Akumatizou! Seu poder de ataque DOBROU pelos próximos turnos!`, 'buff');
+          playSound('buff');
+          finishAction();
+          return;
+        } else if (skillType === 'special') {
+          // Bola de Akuma: Stuns + reduces enemy attack
+          rawDmg = attacker.atk * 1.6;
+          defender.buffs.stunned = true;
+          defender.buffs.accuracyDebuff = 2;
+          attacker.cdSpecial = 4;
+          logMessage(`Bola de Akuma! Causou dano, ATORDOU o alvo e reduziu o Ataque dele!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'vesperia') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.1;
+        } else if (skillType === 'alt') {
+          rawDmg = attacker.atk * 0.9;
+          defender.buffs.speedDebuff = 2;
+          attacker.cdAlt = 3;
+          logMessage(`Disparo de Mel! O oponente foi desacelerado e perdeu precisão!`, 'buff');
+        } else if (skillType === 'special') {
+          // Swarm: Between 20% and 33.3% of total enemy HP
+          const pct = (Math.random() * (0.333 - 0.20) + 0.20);
+          rawDmg = defender.maxHp * pct;
+          attacker.cdSpecial = 4;
+          logMessage(`Enxame de Abelhas! Causou ${Math.round(pct * 100)}% de dano da Vida Total!`, 'special');
+          soundType = 'crit';
+        }
+      } else if (attacker.data.key === 'robustus') {
+        if (skillType === 'basic') {
+          rawDmg = attacker.atk * 1.1;
+        } else if (skillType === 'alt') {
+          rawDmg = attacker.atk * 1.3;
+          defender.buffs.accuracyDebuff = 2;
+          attacker.cdAlt = 3;
+          logMessage(`Robustus usou Fios Elétricos! Prejudicou a mira do herói!`, 'warn');
+        } else if (skillType === 'special') {
+          rawDmg = attacker.atk * 1.7;
+          if (Math.random() > 0.5) defender.buffs.stunned = true;
+          attacker.cdSpecial = 4;
+          logMessage(`Onda Sonora de Robustus! Dano elétrico em área!`, 'warn');
+          soundType = 'crit';
+        }
+      }
 
-      let netDamage = Math.max(5, rawDamage - defender.def);
+      // Apply ATK Boost if active
+      if (attacker.buffs.atkBoost > 0) {
+        rawDmg *= 1.35;
+      }
 
-      if (charId === 'ladybug') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          attacker.buffs.atkTurns = 3;
-          logMessage(`${attacker.data.name} ativou Miraculous! Dano aumentado por 3 turnos.`, 'buff');
-          playSound('portal');
-        } else if (skillType === 'special') {
-          defender.stunned = true;
-          dealDamage(defender, netDamage * 1.3, true);
-          logMessage(`${defender.data.name} foi preso pelo yoyo e atordoado!`, 'special');
-        }
-      } 
-      else if (charId === 'catnoir') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          let catCritDamage = Math.max(5, (rawDamage * 1.2) - defender.def);
-          dealDamage(defender, catCritDamage, true);
-        } else if (skillType === 'special') {
-          // Exactly 50% max HP damage
-          let cataclysmDmg = defender.maxHp * 0.5;
-          dealDamage(defender, cataclysmDmg, true, true);
-          playSound('cataclysm');
-          logMessage(`CATACLISMO! Dano de 50% da vida máxima total!`, 'special');
-        }
-      }
-      else if (charId === 'pegasus') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          // Bypasses armor
-          let directDmg = rawDamage;
-          dealDamage(defender, directDmg, isCrit);
-          playSound('portal');
-          logMessage(`${attacker.data.name} atacou o ponto cego ignorando a armadura!`, 'special');
-        } else if (skillType === 'special') {
-          let hits = Math.floor(Math.random() * 5) + 6; // 6 to 10
-          let totalMult = hits * 0.25;
-          dealDamage(defender, netDamage * totalMult, isCrit);
-          playSound('portal');
-          logMessage(`Multi-Portais acertou ${hits} socos portais!`, 'special');
-        }
-      }
-      else if (charId === 'renarouge') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          attacker.shield = 1;
-          logMessage(`${attacker.data.name} criou uma miragem perfeita para absorver o próximo ataque!`, 'buff');
-          playSound('portal');
-        } else if (skillType === 'special') {
-          dealDamage(defender, netDamage * 1.6, true);
-          logMessage(`Exército de Clones atacou em conjunto!`, 'special');
-        }
-      }
-      else if (charId === 'hawkmoth') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          defender.stunned = true;
-          defender.buffs.atkDebuffTurns = 2;
-          dealDamage(defender, netDamage * 0.8, isCrit);
-          logMessage(`${defender.data.name} foi atordoado e enfraquecido pela Bola de Akuma!`, 'special');
-        } else if (skillType === 'special') {
-          attacker.buffs.doubleAtkTurns = 2;
-          dealDamage(defender, netDamage * 1.2, isCrit);
-          logMessage(`AKUMATIZADO! O dano de ${attacker.data.name} foi dobrado pelos próximos 2 turnos!`, 'special');
-        }
-      }
-      else if (charId === 'vesperia') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          defender.buffs.slowTurns = 2;
-          dealDamage(defender, netDamage * 0.8, isCrit);
-          logMessage(`${defender.data.name} foi desacelerado com mel pegajoso!`, 'special');
-        } else if (skillType === 'special') {
-          let fraction = (Math.random() * (0.333 - 0.20)) + 0.20;
-          let beeDmg = defender.maxHp * fraction;
-          dealDamage(defender, beeDmg, true);
-          logMessage(`A Colmeia atacou causando ${Math.floor(fraction * 100)}% da vida total do inimigo!`, 'special');
-        }
-      }
-      else if (charId === 'robustus') {
-        if (skillType === 'basic') {
-          dealDamage(defender, netDamage, isCrit);
-        } else if (skillType === 'alt') {
-          defender.buffs.slowTurns = 2;
-          dealDamage(defender, netDamage * 0.9, isCrit);
-          logMessage(`Fios Elétricos eletrocutaram ${defender.data.name}!`, 'special');
-        } else if (skillType === 'special') {
-          if (Math.random() < 0.4) defender.stunned = true;
-          dealDamage(defender, netDamage * 1.3, isCrit);
-          logMessage(`Onda Sonora destrutiva atingiu o oponente!`, 'special');
-        }
-      }
+      // Calculate Final Net Damage after Defense Reduction
+      if (isCrit) rawDmg *= 1.5;
+      let finalDmg = Math.max(5, Math.round(rawDmg - (defender.def * 0.4)));
+
+      defender.currentHp -= finalDmg;
+      playSound(soundType);
+      triggerShake(defenderCardId);
+      spawnFloatingDamage(defenderCardId, finalDmg, isCrit);
+
+      logMessage(`${attacker.data.name} usou ${skillType} e causou ${finalDmg} de dano! ${isCrit ? 'CRÍTICO!' : ''}`, isCrit ? 'crit' : 'normal');
 
       finishAction();
     }
 
-    function dealDamage(target, amount, isCrit, isCataclysm = false) {
-      target.hp -= amount;
-      if (target.hp < 0) target.hp = 0;
+    function endTurn() {
+      // Reduce Cooldowns for active player
+      const p = players[activeTurn];
+      if (p.cdAlt > 0) p.cdAlt--;
+      if (p.cdSpecial > 0) p.cdSpecial--;
 
-      playSound(isCataclysm ? 'cataclysm' : (isCrit ? 'crit' : 'hit'));
-
-      // Screen Shake
-      const card = target === players[0] ? document.getElementById('p1Card') : document.getElementById('p2Card');
-      card.classList.add('shake-anim');
-      setTimeout(() => card.classList.remove('shake-anim'), 400);
-
-      // Floating Damage Text
-      showFloatingDamage(card, Math.floor(amount), isCrit);
-    }
-
-    function showFloatingDamage(parent, amount, isCrit) {
-      const pop = document.createElement('div');
-      pop.className = `floating-dmg ${isCrit ? 'text-red-500 text-2xl drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]' : 'text-amber-400 text-lg'}`;
-      pop.innerText = `-${amount}${isCrit ? '!' : ''}`;
-      pop.style.left = `${50 + (Math.random() * 20 - 10)}%`;
-      pop.style.top = `40%`;
-      parent.appendChild(pop);
-      setTimeout(() => pop.remove(), 1200);
+      // Switch Active Turn
+      activeTurn = activeTurn === 0 ? 1 : 0;
+      checkTurnStart();
     }
 
     function finishAction() {
       updateBattleUI();
 
-      // Check KO
-      if (players[0].hp <= 0 || players[1].hp <= 0) {
-        setTimeout(handleBattleEnd, 800);
+      // Check KO and trigger Minigame if Boss Robustus is defeated in Story Mode
+      if (players[1].currentHp <= 0) {
+        if (gameMode === 'story') {
+          logMessage(`Robustus foi desativado no combate! Ativando minigame de destruição de núcleo...`, 'system');
+          setTimeout(() => {
+            startDroneMinigame();
+          }, 1000);
+        } else {
+          showWinner(players[0]);
+        }
+        return;
+      } else if (players[0].currentHp <= 0) {
+        showWinner(players[1]);
         return;
       }
 
       setTimeout(() => {
         endTurn();
-      }, 800);
+      }, 1000);
     }
-
-    function endTurn() {
-      // Decrement cooldowns and buff durations for current active player
-      const activeP = players[currentTurnIndex];
-      if (activeP.altCd > 0) activeP.altCd--;
-      if (activeP.specialCd > 0) activeP.specialCd--;
-
-      if (activeP.buffs.atkTurns > 0) activeP.buffs.atkTurns--;
-      if (activeP.buffs.doubleAtkTurns > 0) activeP.buffs.doubleAtkTurns--;
-      if (activeP.buffs.slowTurns > 0) activeP.buffs.slowTurns--;
-      if (activeP.buffs.atkDebuffTurns > 0) activeP.buffs.atkDebuffTurns--;
-
-      // Switch Turn
-      currentTurnIndex = 1 - currentTurnIndex;
-      combatActionLocked = false;
-
-      updateBattleUI();
-      checkTurnStart();
-    }
-
-
-    function handleAITurn() {
-      const ai = players[1];
-      const player = players[0];
-
-      let choice = 'basic';
-
-      if (storyDifficulty === 'easy') {
-        const choices = ['basic', 'basic', 'alt', 'special'];
-        choice = choices[Math.floor(Math.random() * choices.length)];
-        if (choice === 'alt' && ai.altCd > 0) choice = 'basic';
-        if (choice === 'special' && ai.specialCd > 0) choice = 'basic';
-      } 
-      else if (storyDifficulty === 'medium') {
-        if (ai.specialCd === 0) choice = 'special';
-        else if (ai.altCd === 0) choice = 'alt';
-        else choice = 'basic';
-      } 
-      else if (storyDifficulty === 'hard') {
-        // AI execution logic
-        if (ai.specialCd === 0) {
-          choice = 'special';
-        } else if (ai.altCd === 0 && !player.stunned) {
-          choice = 'alt';
-        } else {
-          choice = 'basic';
-        }
-      }
-
-      // Unlock briefly so executeSkill can perform for index 1
-      combatActionLocked = false;
-      executeSkill(1, choice);
-    }
-
-    function handleBattleEnd() {
-      if (players[0].hp <= 0) {
-        showResultModal("DERROTA", "Você foi derrotado em combate! Escolha seu herói e tente novamente.", false);
-      } else if (players[1].hp <= 0) {
-        if (gameMode === 'story') {
-          startDroneMinigame();
-        } else {
-          showResultModal("VITÓRIA!", `${players[0].data.name} venceu o duelo 1v1 com maestria!`, true);
-        }
-      }
-    }
-
 
     function startDroneMinigame() {
       document.getElementById('screenBattle').classList.add('hidden');
@@ -1138,15 +1143,16 @@
       document.getElementById('minigameBossHpText').innerText = '100%';
       document.getElementById('minigamePlayerHpText').innerText = '100 HP';
 
-      // Clear existing drone elements
-      const arena = document.getElementById('minigameArena');
+      // Remove previous drones
       document.querySelectorAll('.drone-elem').forEach(el => el.remove());
 
-      // Initial drone spawn
+      if (minigameState.damageTimer) clearInterval(minigameState.damageTimer);
+
+      // Spawn initial drones immediately
       spawnDrone();
       spawnDrone();
 
-      // Drone laser interval damage
+      // Laser damage timer
       minigameState.damageTimer = setInterval(() => {
         if (!minigameState.active) return;
         if (minigameState.drones.length > 0) {
@@ -1164,67 +1170,58 @@
     }
 
     function spawnDrone() {
-      if (!minigameState.active || minigameState.drones.length >= 4) return;
+      if (!minigameState.active) return;
+      if (minigameState.drones.length >= 4) return;
 
       const arena = document.getElementById('minigameArena');
       const drone = document.createElement('div');
-      const droneId = 'drone_' + Date.now() + '_' + Math.random();
+      drone.className = 'drone-elem absolute w-12 h-12 rounded-full glass-panel border border-red-400/80 flex items-center justify-center cursor-pointer text-red-400 hover:scale-110 transition-transform shadow-neon-red z-30';
+      
+      const posX = Math.floor(Math.random() * (arena.clientWidth - 60)) + 10;
+      const posY = Math.floor(Math.random() * (arena.clientHeight - 160)) + 100;
 
-      // Random position avoiding top center boss bar
-      const x = Math.floor(Math.random() * (arena.clientWidth - 70));
-      const y = Math.floor(Math.random() * (arena.clientHeight - 180)) + 90;
+      drone.style.left = `${posX}px`;
+      drone.style.top = `${posY}px`;
+      drone.innerHTML = `<i class="fas fa-[#ff003c] fa-crosshairs text-lg animate-spin"></i>`;
 
-      drone.id = droneId;
-      drone.className = 'drone-elem absolute w-14 h-14 cursor-pointer z-30 transition-transform hover:scale-110';
-      drone.style.left = `${x}px`;
-      drone.style.top = `${y}px`;
-      drone.innerHTML = `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"><circle cx="50" cy="50" r="30" fill="#1e293b" stroke="#ef4444" stroke-width="4"/><circle cx="50" cy="50" r="10" fill="#ef4444" class="animate-ping"/><line x1="10" y1="50" x2="90" y2="50" stroke="#ef4444" stroke-width="3"/></svg>`;
+      const droneObj = { id: Date.now() + Math.random(), elem: drone };
+      minigameState.drones.push(droneObj);
 
       drone.onclick = (e) => {
         e.stopPropagation();
-        destroyDrone(droneId);
+        destroyDrone(droneObj);
       };
 
       arena.appendChild(drone);
-      minigameState.drones.push(droneId);
     }
 
-    function destroyDrone(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        playSound('hit');
-        el.remove();
-        minigameState.drones = minigameState.drones.filter(d => d !== id);
+    function destroyDrone(droneObj) {
+      playSound('hit');
+      droneObj.elem.remove();
+      minigameState.drones = minigameState.drones.filter(d => d.id !== droneObj.id);
 
-        // Respawn replacement drone after exact 2-second delay (2000ms)
-        setTimeout(() => {
-          if (minigameState.active) spawnDrone();
-        }, 2000);
-      }
+      // Respawn timer: Exactly 2 seconds (2000ms) delay
+      setTimeout(() => {
+        if (minigameState.active) spawnDrone();
+      }, 2000);
     }
 
     function damageMinigameBoss() {
       if (!minigameState.active) return;
 
-      // Se houver drones ativos na tela, o Robustus fica protegido por escudo
+      // BOSS SHIELD MECHANIC: Cannot damage boss if active drones exist
       if (minigameState.drones.length > 0) {
         playSound('zap');
-        const bossCard = document.getElementById('minigameBossTarget');
-        bossCard.classList.add('shake-anim');
-        setTimeout(() => bossCard.classList.remove('shake-anim'), 400);
-
-        // Feedback visual de escudo
-        showFloatingDamage(bossCard, "BLOQUEADO!", false);
+        triggerShake('minigameBossTarget');
         return;
       }
 
       minigameState.bossHp -= 8;
-      playSound('crit');
+      playSound('hit');
 
-      if (minigameState.bossHp < 0) minigameState.bossHp = 0;
-
-      document.getElementById('minigameBossHpBar').style.width = `${minigameState.bossHp}%`;
-      document.getElementById('minigameBossHpText').innerText = `${Math.floor(minigameState.bossHp)}%`;
+      const pct = Math.max(0, minigameState.bossHp);
+      document.getElementById('minigameBossHpBar').style.width = `${pct}%`;
+      document.getElementById('minigameBossHpText').innerText = `${Math.ceil(pct)}%`;
 
       if (minigameState.bossHp <= 0) {
         endMinigame(true);
@@ -1233,48 +1230,136 @@
 
     function endMinigame(victory) {
       minigameState.active = false;
-      clearInterval(minigameState.damageTimer);
+      if (minigameState.damageTimer) clearInterval(minigameState.damageTimer);
 
       if (victory) {
-        showResultModal("VITÓRIA LENDÁRIA!", "Você sobrecarregou o núcleo do Robustus e salvou Paris!", true);
+        showWinner(players[0]);
       } else {
-        showResultModal("GAME OVER", "Seu escudo foi destruído pelos drones de Robustus. Tente novamente!", false);
+        showWinner(players[1]);
       }
     }
 
+    function playSound(type) {
+      if (audioMuted) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    function logMessage(msg, type = 'system') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'hit') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'crit') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'buff') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(660, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'zap') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function toggleAudio() {
+      audioMuted = !audioMuted;
+      const icon = document.getElementById('audioIcon');
+      if (audioMuted) {
+        icon.className = 'fas fa-volume-mute text-red-400';
+      } else {
+        icon.className = 'fas fa-volume-up text-lg text-slate-300';
+      }
+    }
+
+    // UI UTILITIES & MODALS
+    function logMessage(msg, type = 'normal') {
       const log = document.getElementById('combatLog');
       const item = document.createElement('div');
 
-      let color = 'text-slate-300';
-      if (type === 'action') color = 'text-cyan-300 font-bold';
-      if (type === 'special') color = 'text-amber-300 font-bold';
-      if (type === 'warning') color = 'text-purple-400';
-      if (type === 'miss') color = 'text-slate-500 italic';
-      if (type === 'buff') color = 'text-emerald-400';
+      if (type === 'crit') item.className = 'text-red-400 font-bold';
+      else if (type === 'buff') item.className = 'text-cyan-300 font-bold';
+      else if (type === 'special') item.className = 'text-amber-300 font-bold';
+      else if (type === 'warn') item.className = 'text-purple-400';
+      else if (type === 'system') item.className = 'text-slate-400 italic';
+      else item.className = 'text-slate-300';
 
-      item.className = color;
-      item.innerHTML = `> ${msg}`;
+      item.innerText = `> ${msg}`;
       log.appendChild(item);
       log.scrollTop = log.scrollHeight;
     }
 
-    function showResultModal(title, desc, isWin) {
-      document.getElementById('resultTitle').innerText = title;
-      document.getElementById('resultDesc').innerText = desc;
+    function triggerShake(elemId) {
+      const el = document.getElementById(elemId);
+      if (!el) return;
+      el.classList.add('shake-anim');
+      setTimeout(() => el.classList.remove('shake-anim'), 400);
+    }
+
+    function spawnFloatingDamage(cardId, dmg, isCrit) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const floatEl = document.createElement('div');
+      floatEl.className = 'floating-dmg ' + (isCrit ? 'text-red-500 text-2xl drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]' : 'text-cyan-300 text-xl');
+      floatEl.innerText = `-${dmg}`;
+      floatEl.style.left = '50%';
+      floatEl.style.top = '40%';
+
+      card.appendChild(floatEl);
+      setTimeout(() => floatEl.remove(), 1200);
+    }
+
+    function showWinner(winnerPlayer) {
+      const modal = document.getElementById('resultModal');
+      const title = document.getElementById('resultTitle');
+      const desc = document.getElementById('resultDesc');
       const icon = document.getElementById('resultIcon');
-      
-      if (isWin) {
-        icon.className = 'w-20 h-20 rounded-full bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center mx-auto mb-4 text-4xl text-cyan-400';
-        icon.innerHTML = '<i class="fas fa-trophy"></i>';
-      } else {
+
+      if (gameMode === 'story' && winnerPlayer.playerNum === 2) {
+        title.innerText = 'DERROTA!';
+        title.className = 'font-cyber text-2xl font-bold text-red-500 mb-2';
+        desc.innerText = 'Robustus superou suas defesas. Treine suas táticas e tente novamente!';
         icon.className = 'w-20 h-20 rounded-full bg-red-500/10 border border-red-400/40 flex items-center justify-center mx-auto mb-4 text-4xl text-red-500';
-        icon.innerHTML = '<i class="fas fa-skull"></i>';
+        icon.innerHTML = `<i class="fas fa-skull"></i>`;
+      } else {
+        title.innerText = 'VITÓRIA!';
+        title.className = 'font-cyber text-2xl font-bold text-emerald-400 mb-2';
+        desc.innerText = `${winnerPlayer.data.name} venceu o combate com extrema bravura!`;
+        icon.className = 'w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-400/40 flex items-center justify-center mx-auto mb-4 text-4xl text-emerald-400';
+        icon.innerHTML = `<i class="fas fa-trophy"></i>`;
       }
 
-      document.getElementById('resultModal').classList.remove('hidden');
-      document.getElementById('resultModal').classList.add('flex');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
     function resetToMenu() {
@@ -1283,19 +1368,21 @@
       backToModeSelect();
     }
 
-    /* EXPOSE FUNCTIONS TO GLOBAL WINDOW SCOPE FOR HTML ONCLICK HANDLERS */
+    // EXPOSE ALL UI FUNCTIONS TO GLOBAL WINDOW SCOPE (PREVENTS INLINE ONCLICK REFERENCEERRORS)
     window.selectGameMode = selectGameMode;
     window.showDifficultySelect = showDifficultySelect;
     window.selectStoryDifficulty = selectStoryDifficulty;
     window.backToModeSelect = backToModeSelect;
     window.selectHero = selectHero;
+    window.openBioModal = openBioModal;
+    window.closeBioModal = closeBioModal;
     window.executeSkill = executeSkill;
-    window.toggleAudio = toggleAudio;
     window.damageMinigameBoss = damageMinigameBoss;
     window.resetToMenu = resetToMenu;
+    window.toggleAudio = toggleAudio;
 
-    
-    document.addEventListener('DOMContentLoaded', () => {
+    // BACKGROUND CANVAS ANIMATION
+    window.onload = function() {
       const canvas = document.getElementById('bgCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
@@ -1307,34 +1394,41 @@
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
 
-      const particles = Array.from({ length: 45 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 1,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        color: Math.random() > 0.5 ? 'rgba(6, 182, 212, 0.4)' : 'rgba(255, 0, 60, 0.4)'
-      }));
+      const particles = [];
+      for (let i = 0; i < 45; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 0.4,
+          speedY: (Math.random() - 0.5) * 0.4,
+          color: Math.random() > 0.5 ? 'rgba(6, 182, 212, ' : 'rgba(168, 85, 247, '
+        });
+      }
 
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
+          p.x += p.speedX;
+          p.y += p.speedY;
+
           if (p.x < 0) p.x = canvas.width;
           if (p.x > canvas.width) p.x = 0;
           if (p.y < 0) p.y = canvas.height;
           if (p.y > canvas.height) p.y = 0;
 
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + '0.4)';
           ctx.fill();
         });
+
         requestAnimationFrame(animate);
       }
+
       animate();
-    });
+    };
   </script>
 </body>
 </html>
