@@ -1,1526 +1,619 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSF - Miraculous Strong Fighter</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                        display: ['Orbitron', 'sans-serif']
-                    },
-                    colors: {
-                        miraculous: {
-                            red: '#e63946',
-                            black: '#1d3557',
-                            gold: '#ffd166',
-                            purple: '#7209b7',
-                            green: '#06d6a0',
-                            blue: '#4cc9f0'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSF - Miraculous Strong Fighter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap');
 
-    <style>
-        body {
-            background: #090a0f;
-            color: #f8fafc;
-            overflow-x: hidden;
-            user-select: none;
-            font-family: 'Outfit', sans-serif;
-        }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: #090a0f;
+      color: #fff;
+      user-select: none;
+      overflow-x: hidden;
+    }
 
-        /* Ambient Canvas Background */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-        }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
-        /* Glassmorphism Cards */
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-        }
+    .fixed-action-bar {
+      height: 128px;
+      min-height: 128px;
+      max-height: 128px;
+    }
 
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        }
+    .action-btn {
+      height: 72px;
+      transition: all 0.15s ease-in-out;
+    }
 
-        .glass-card:hover {
-            transform: translateY(-4px) scale(1.02);
-            border-color: rgba(230, 57, 70, 0.5);
-            box-shadow: 0 10px 25px -5px rgba(230, 57, 70, 0.3);
-        }
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(80%);
+      transform: none !important;
+      box-shadow: none !important;
+    }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(230, 57, 70, 0.5);
-            border-radius: 3px;
-        }
+    .action-btn:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    }
 
-        /* Animations */
-        @keyframes pulse-glow {
-            0%, 100% { filter: drop-shadow(0 0 12px rgba(230, 57, 70, 0.5)); }
-            50% { filter: drop-shadow(0 0 24px rgba(230, 57, 70, 0.8)); }
-        }
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-6px, 4px); }
+      40% { transform: translate(6px, -4px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+    }
+    .animate-shake { animation: shake 0.3s ease-in-out; }
 
-        .glow-effect {
-            animation: pulse-glow 3s infinite;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0); }
-            20% { transform: translate(-6px, 4px); }
-            40% { transform: translate(6px, -4px); }
-            60% { transform: translate(-4px, 2px); }
-            80% { transform: translate(4px, -2px); }
-        }
-
-        .screen-shake {
-            animation: shake 0.35s ease-in-out;
-        }
-
-        @keyframes float-up {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
-        }
-
-        .floating-damage {
-            position: absolute;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            animation: float-up 0.9s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-            pointer-events: none;
-            z-index: 100;
-            text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 16px currentColor;
-        }
-
-        /* Health Bar Animation */
-        .hp-bar-fill {
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Character Glow Colors */
-        .theme-ladybug { border-color: #e63946; box-shadow: 0 0 15px rgba(230, 57, 70, 0.25); }
-        .theme-catnoir { border-color: #06d6a0; box-shadow: 0 0 15px rgba(6, 214, 160, 0.25); }
-        .theme-pegasus { border-color: #4cc9f0; box-shadow: 0 0 15px rgba(76, 201, 240, 0.25); }
-        .theme-renarouge { border-color: #f77f00; box-shadow: 0 0 15px rgba(247, 127, 0, 0.25); }
-        .theme-hawkmoth { border-color: #7209b7; box-shadow: 0 0 15px rgba(114, 9, 183, 0.25); }
-        .theme-vesperia { border-color: #ffd166; box-shadow: 0 0 15px rgba(255, 209, 102, 0.25); }
-
-        /* STRICT RIGID BUTTON SIZING - ZERO RESIZING */
-        .btn-action-strict {
-            height: 80px !important;
-            min-height: 80px !important;
-            max-height: 80px !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: flex-start !important;
-            padding: 0.625rem 0.875rem !important;
-            position: relative !important;
-            overflow: hidden !important;
-            line-height: 1.2 !important;
-            transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
-        }
-
-        .btn-action-strict:disabled {
-            cursor: not-allowed;
-            opacity: 0.45;
-            filter: grayscale(40%);
-        }
-    </style>
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      50% { transform: translateY(-25px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-45px) scale(0.9); }
+    }
+    .float-num {
+      position: absolute;
+      animation: floatUp 0.8s ease-out forwards;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between relative selection:bg-red-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
 
-    <!-- Background Canvas -->
-    <canvas id="bg-canvas"></canvas>
+  <!-- HEADER -->
+  <header class="w-full bg-slate-900/90 border-b border-red-500/30 p-4 shadow-lg backdrop-blur flex justify-between items-center z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-orbitron font-bold text-xl shadow-red-500/50 shadow-md">M</div>
+      <h1 class="text-xl md:text-2xl font-orbitron font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-500 to-purple-500">
+        MSF <span class="text-xs md:text-sm font-normal text-slate-400 block md:inline">Miraculous Strong Fighter</span>
+      </h1>
+    </div>
+    <div id="gameModeBadge" class="hidden px-3 py-1 bg-red-950/80 border border-red-500/40 rounded-full text-xs font-orbitron text-red-400">
+      MODO HISTÓRIA
+    </div>
+  </header>
 
-    <!-- Sound Toggle -->
-    <button id="sound-btn" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 w-12 h-12 rounded-full glass-panel flex items-center justify-center text-xl text-yellow-400 hover:text-white transition-all shadow-lg hover:scale-110">
-        <i class="fas fa-volume-up" id="sound-icon"></i>
-    </button>
+  <!-- CONTAINER PRINCIPAL -->
+  <main class="flex-1 flex items-center justify-center p-2 md:p-6 relative overflow-hidden">
+    
+    <canvas id="fxCanvas" class="absolute inset-0 pointer-events-none z-0"></canvas>
 
-    <!-- APP CONTAINER -->
-    <div id="app" class="relative z-10 container mx-auto px-4 py-6 flex-1 flex flex-col justify-center items-center">
+    <!-- SELEÇÃO DE MODO -->
+    <section id="screenMenu" class="z-10 w-full max-w-2xl bg-slate-900/80 border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl backdrop-blur text-center">
+      <h2 class="text-3xl font-orbitron font-bold text-red-500 mb-2">ESCOLHA SEU MODO DE JOGO</h2>
+      <p class="text-slate-400 mb-8">Enfrente vilões no Modo História ou desafie um amigo no Modo PvP x1!</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <button onclick="selectMode('story')" class="group p-6 bg-gradient-to-b from-red-900/40 to-slate-900 border border-red-500/30 hover:border-red-500 rounded-xl transition duration-200 text-left hover:scale-105">
+          <div class="text-2xl font-orbitron font-bold text-red-400 group-hover:text-red-300 mb-2">📜 Modo História</div>
+          <p class="text-xs text-slate-300 leading-relaxed">Derrote os 6 vilões e seus minigames em sequência!</p>
+        </button>
 
-        <!-- ==================== MAIN MENU ==================== -->
-        <div id="screen-menu" class="w-full max-w-4xl text-center flex flex-col items-center">
-            <div class="mb-8 relative">
-                <h1 class="text-5xl md:text-7xl font-black font-display tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-purple-400 to-cyan-400 drop-shadow-lg">
-                    MSF
-                </h1>
-                <p class="text-xl md:text-2xl font-bold text-gray-300 font-display tracking-widest mt-1">
-                    MIRACULOUS STRONG FIGHTER
-                </p>
-                <div class="h-1 w-32 bg-gradient-to-r from-red-500 to-purple-600 mx-auto mt-4 rounded-full"></div>
+        <button onclick="selectMode('pvp')" class="group p-6 bg-gradient-to-b from-purple-900/40 to-slate-900 border border-purple-500/30 hover:border-purple-500 rounded-xl transition duration-200 text-left hover:scale-105">
+          <div class="text-2xl font-orbitron font-bold text-purple-400 group-hover:text-purple-300 mb-2">⚔️ Modo PvP x1</div>
+          <p class="text-xs text-slate-300 leading-relaxed">Dois jogadores batalham no mesmo dispositivo!</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- SELEÇÃO DE HERÓI -->
+    <section id="screenSelectChar" class="hidden z-10 w-full max-w-4xl bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-2xl backdrop-blur">
+      <h2 id="selectTitle" class="text-2xl font-orbitron font-bold text-center text-red-500 mb-6">ESCOLHA SEU HERÓI</h2>
+      <div id="charGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6"></div>
+      <div class="flex justify-center">
+        <button onclick="goToMenu()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron rounded-lg transition">VOLTAR AO MENU</button>
+      </div>
+    </section>
+
+    <!-- TELA DE COMBATE -->
+    <section id="screenCombat" class="hidden z-10 w-full max-w-4xl flex flex-col gap-4">
+      <div id="arenaBox" class="relative bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl overflow-hidden min-h-[300px] flex flex-col justify-between">
+        
+        <div class="grid grid-cols-2 gap-4 z-10">
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+            <div class="flex items-center gap-3 mb-2">
+              <div id="p1Avatar" class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xl border border-red-500/50">🐞</div>
+              <div class="overflow-hidden">
+                <div id="p1Name" class="font-orbitron font-bold text-sm md:text-base text-red-400 truncate">Ladybug</div>
+                <div id="p1Buffs" class="text-[10px] text-amber-400 h-4 truncate"></div>
+              </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-                <!-- Mode Story Button -->
-                <button onclick="selectGameMode('story')" class="glass-panel p-8 rounded-2xl flex flex-col items-center justify-center group hover:border-red-500 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center mb-4 text-3xl shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-book-open text-white"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold font-display text-white mb-2">Modo História</h2>
-                    <p class="text-gray-400 text-sm">Enfrente Vilões em lutas RPG e vença minigames desafiadores!</p>
-                </button>
-
-                <!-- Mode PvP Button -->
-                <button onclick="selectGameMode('pvp')" class="glass-panel p-8 rounded-2xl flex flex-col items-center justify-center group hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 text-3xl shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fas fa-swords text-white"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold font-display text-white mb-2">Modo PvP 1v1</h2>
-                    <p class="text-gray-400 text-sm">Desafie um amigo localmente para um combate tático por turnos!</p>
-                </button>
+            <div class="w-full bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="p1HpBar" class="bg-gradient-to-r from-red-600 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
             </div>
+            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-400">
+              <span>HP</span>
+              <span id="p1HpTxt">110 / 110</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl text-right">
+            <div class="flex items-center justify-end gap-3 mb-2">
+              <div class="overflow-hidden">
+                <div id="p2Name" class="font-orbitron font-bold text-sm md:text-base text-purple-400 truncate">Robustus</div>
+                <div id="p2Buffs" class="text-[10px] text-amber-400 h-4 truncate"></div>
+              </div>
+              <div id="p2Avatar" class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xl border border-purple-500/50">🤖</div>
+            </div>
+            <div class="w-full bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="p2HpBar" class="bg-gradient-to-r from-red-600 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
+            </div>
+            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-400">
+              <span id="p2HpTxt">105 / 105</span>
+              <span>HP</span>
+            </div>
+          </div>
         </div>
 
-        <!-- ==================== CHARACTER SELECT ==================== -->
-        <div id="screen-char-select" class="hidden w-full max-w-6xl flex flex-col items-center">
-            <div class="text-center mb-6">
-                <h2 id="select-title" class="text-3xl md:text-4xl font-extrabold font-display text-white">
-                    ESCOLHA SEU HERÓI
-                </h2>
-                <p id="select-subtitle" class="text-gray-400 text-sm mt-1">Selecione o combatente para iniciar o desafio</p>
-            </div>
-
-            <!-- Grid of Characters -->
-            <div id="char-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-8">
-                <!-- Injected via JS -->
-            </div>
-
-            <div class="flex gap-4">
-                <button onclick="showScreen('screen-menu')" class="px-6 py-3 rounded-xl glass-panel text-gray-300 font-semibold hover:bg-slate-800 transition">
-                    <i class="fas fa-arrow-left mr-2"></i> Voltar ao Menu
-                </button>
-            </div>
+        <div id="turnBanner" class="text-center font-orbitron text-sm md:text-base font-bold my-4 py-1 px-4 bg-slate-800/80 border border-slate-700 rounded-full mx-auto text-amber-400 shadow">
+          TURNO DO JOGADOR 1
         </div>
 
-        <!-- ==================== BATTLE HUD (RPG) ==================== -->
-        <div id="screen-battle" class="hidden w-full max-w-5xl flex flex-col items-center relative">
-            <!-- Turn Banner -->
-            <div id="turn-banner" class="mb-4 px-6 py-2 rounded-full glass-panel font-display font-bold text-base md:text-lg text-yellow-400 flex items-center gap-2 border border-yellow-500/30">
-                <i class="fas fa-flag"></i> <span id="turn-text">Turno de Jogador 1</span>
-            </div>
-
-            <!-- Combat Arena Stage -->
-            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative">
-                
-                <!-- Player 1 Card -->
-                <div id="p1-card" class="glass-panel p-5 md:p-6 rounded-2xl flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute top-2 left-3 text-xs font-display font-bold px-2 py-1 rounded bg-slate-800 text-slate-300" id="p1-label">
-                        JOGADOR 1
-                    </div>
-                    <!-- Avatar -->
-                    <div id="p1-avatar-container" class="w-28 h-28 md:w-36 md:h-36 my-2 flex items-center justify-center relative">
-                        <!-- SVG Avatar -->
-                    </div>
-                    <h3 id="p1-name" class="text-2xl font-bold font-display text-white mb-1">Ladybug</h3>
-                    <div class="w-full space-y-2 mt-2">
-                        <!-- HP Bar -->
-                        <div class="flex justify-between text-xs font-bold font-display mb-1">
-                            <span class="text-red-400"><i class="fas fa-heart mr-1"></i> VIDA</span>
-                            <span id="p1-hp-text" class="text-white">220 / 220</span>
-                        </div>
-                        <div class="w-full h-4 bg-slate-900/80 rounded-full overflow-hidden p-0.5 border border-slate-700">
-                            <div id="p1-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-emerald-400 rounded-full hp-bar-fill w-full"></div>
-                        </div>
-                        <!-- Status Effects Container -->
-                        <div id="p1-buffs" class="flex gap-2 justify-center min-h-[24px]"></div>
-                    </div>
-                </div>
-
-                <!-- Player 2 / Boss Card -->
-                <div id="p2-card" class="glass-panel p-5 md:p-6 rounded-2xl flex flex-col items-center relative overflow-hidden">
-                    <div class="absolute top-2 right-3 text-xs font-display font-bold px-2 py-1 rounded bg-slate-800 text-slate-300" id="p2-label">
-                        OPONENTE
-                    </div>
-                    <!-- Avatar -->
-                    <div id="p2-avatar-container" class="w-28 h-28 md:w-36 md:h-36 my-2 flex items-center justify-center relative">
-                        <!-- SVG Avatar -->
-                    </div>
-                    <h3 id="p2-name" class="text-2xl font-bold font-display text-white mb-1">Cat Noir</h3>
-                    <div class="w-full space-y-2 mt-2">
-                        <!-- HP Bar -->
-                        <div class="flex justify-between text-xs font-bold font-display mb-1">
-                            <span class="text-red-400"><i class="fas fa-heart mr-1"></i> VIDA</span>
-                            <span id="p2-hp-text" class="text-white">220 / 220</span>
-                        </div>
-                        <div class="w-full h-4 bg-slate-900/80 rounded-full overflow-hidden p-0.5 border border-slate-700">
-                            <div id="p2-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-emerald-400 rounded-full hp-bar-fill w-full"></div>
-                        </div>
-                        <!-- Status Effects Container -->
-                        <div id="p2-buffs" class="flex gap-2 justify-center min-h-[24px]"></div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Controls & Battle Log Container -->
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <!-- Action Buttons Container - FIXED RIGID LAYOUT CONTAINER -->
-                <div class="md:col-span-2 glass-panel p-5 rounded-2xl flex flex-col justify-between h-[175px] min-h-[175px] max-h-[175px] overflow-hidden">
-                    
-                    <!-- Fixed Header & Info Bar (24px Height) -->
-                    <div class="flex justify-between items-center h-6 min-h-[24px] mb-2">
-                        <span class="text-xs font-display font-semibold text-gray-400 uppercase tracking-wider">Painel de Ações</span>
-                        <span id="controls-status" class="text-xs font-bold text-yellow-400 truncate"></span>
-                    </div>
-                    
-                    <!-- Fixed 3-Column Grid with Strict 80px Height Buttons -->
-                    <div id="action-buttons-group" class="grid grid-cols-3 gap-3 w-full h-[80px] min-h-[80px]">
-                        
-                        <!-- Basic Attack Button -->
-                        <button id="btn-atk-1" onclick="executeAttack(0)" class="btn-action-strict rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-left group">
-                            <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block leading-tight">Básico</span>
-                            <span id="atk1-name" class="font-bold text-xs md:text-sm text-white block truncate w-full group-hover:text-emerald-300">Ataque Bás.</span>
-                            <span id="atk1-cd" class="text-[10px] text-gray-400 block truncate w-full leading-tight mt-0.5">Dano Padrão</span>
-                        </button>
-
-                        <!-- Alt Attack Button -->
-                        <button id="btn-atk-2" onclick="executeAttack(1)" class="btn-action-strict rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-left group">
-                            <span class="text-[10px] text-purple-400 font-bold uppercase tracking-wider block leading-tight">Alternativo</span>
-                            <span id="atk2-name" class="font-bold text-xs md:text-sm text-white block truncate w-full group-hover:text-purple-300">Ataque Alt.</span>
-                            <span id="atk2-cd" class="text-[10px] text-yellow-400 block truncate w-full leading-tight mt-0.5">2 turnos</span>
-                        </button>
-
-                        <!-- Special Attack Button -->
-                        <button id="btn-atk-3" onclick="executeAttack(2)" class="btn-action-strict rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-left group">
-                            <span class="text-[10px] text-red-400 font-bold uppercase tracking-wider block leading-tight">Especial</span>
-                            <span id="atk3-name" class="font-bold text-xs md:text-sm text-white block truncate w-full group-hover:text-red-300">Especial</span>
-                            <span id="atk3-cd" class="text-[10px] text-yellow-400 block truncate w-full leading-tight mt-0.5">2 turnos</span>
-                        </button>
-
-                    </div>
-
-                    <!-- Fixed Helper Footer Bar (18px Height) -->
-                    <div class="h-4 min-h-[16px] flex items-center justify-between text-[10px] text-slate-400 mt-2">
-                        <span id="skill-tip-desc" class="truncate font-mono">Dica: Selecione o golpe ideal para o seu turno.</span>
-                    </div>
-
-                </div>
-
-                <!-- Combat Log Container -->
-                <div class="glass-panel p-4 rounded-2xl flex flex-col h-[175px] min-h-[175px] max-h-[175px] overflow-hidden">
-                    <p class="text-xs font-display font-semibold text-gray-400 mb-2 uppercase tracking-wider flex items-center justify-between min-h-[18px]">
-                        <span><i class="fas fa-scroll mr-1"></i> Log de Combate</span>
-                    </p>
-                    <div id="battle-log" class="flex-1 overflow-y-auto space-y-1.5 text-xs pr-1 font-mono">
-                        <div class="text-slate-400 italic">O combate iniciou!</div>
-                    </div>
-                </div>
-
-            </div>
+        <div id="combatLog" class="bg-slate-950/80 border border-slate-800 rounded-lg p-3 h-24 overflow-y-auto text-xs font-mono space-y-1 text-slate-300">
+          <div>> Luta iniciada! Prepare-se para o combate.</div>
         </div>
+      </div>
 
-        <!-- ==================== MINIGAME SCREEN ==================== -->
-        <div id="screen-minigame" class="hidden w-full max-w-4xl flex flex-col items-center">
-            <!-- Header Info -->
-            <div class="w-full glass-panel p-4 rounded-2xl mb-4 flex justify-between items-center">
-                <div>
-                    <h3 id="mg-title" class="text-2xl font-bold font-display text-white">MINIGAME - ROBUSTUS</h3>
-                    <p id="mg-desc" class="text-xs text-gray-300">Clique nos drones inimigos para destruí-los!</p>
-                </div>
-                <!-- Minigame Stats -->
-                <div class="flex gap-6 text-right font-display">
-                    <div>
-                        <div class="text-[10px] text-gray-400 uppercase">Sua Vida</div>
-                        <div id="mg-player-hp" class="text-xl font-bold text-emerald-400">100%</div>
-                    </div>
-                    <div>
-                        <div class="text-[10px] text-gray-400 uppercase">Vida do Vilão</div>
-                        <div id="mg-boss-hp" class="text-xl font-bold text-red-500">100%</div>
-                    </div>
-                </div>
-            </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-2 px-4 text-xs flex justify-between items-center text-slate-300 h-8">
+        <span id="skillDescTxt" class="truncate">Selecione uma ação para realizar no seu turno.</span>
+        <span id="turnStatusBadge" class="font-orbitron font-bold text-red-400 text-[11px] shrink-0">SUA VEZ</span>
+      </div>
 
-            <!-- Canvas Minigame Area -->
-            <div class="relative w-full aspect-video max-h-[480px] glass-panel rounded-2xl overflow-hidden border border-slate-700 flex items-center justify-center">
-                <canvas id="mg-canvas" class="w-full h-full bg-slate-950 cursor-crosshair"></canvas>
-                
-                <!-- Start Overlay -->
-                <div id="mg-start-overlay" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center z-20">
-                    <h2 id="mg-start-title" class="text-3xl font-bold font-display text-white mb-2">DESAFIO DE DRONES</h2>
-                    <p id="mg-start-instructions" class="text-gray-300 max-w-md text-sm mb-6">
-                        Destrua os drones clicando neles antes que eles tirem toda sua vida! Cada drone destruído tira 5% da vida do Robustus.
-                    </p>
-                    <button onclick="startMinigameLogic()" class="px-8 py-4 rounded-xl bg-gradient-to-r from-red-600 to-purple-600 text-white font-bold font-display text-lg shadow-lg hover:scale-105 transition">
-                        INICIAR DESAFIO
-                    </button>
-                </div>
-            </div>
+      <div id="actionPanel" class="fixed-action-bar grid grid-cols-3 gap-3">
+        <button id="btnAtkBasic" onclick="handlePlayerAction('basic')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-red-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-red-400 truncate group-hover:text-red-300" id="nameAtkBasic">Ataque Básico</div>
+          <div class="text-[10px] text-slate-400 truncate" id="subAtkBasic">Ataque Padrão</div>
+          <div class="text-[10px] font-orbitron font-bold text-emerald-400">PRONTO</div>
+        </button>
+
+        <button id="btnAtkAlt" onclick="handlePlayerAction('alt')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-amber-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-amber-400 truncate group-hover:text-amber-300" id="nameAtkAlt">Ataque Alt.</div>
+          <div class="text-[10px] text-slate-400 truncate" id="subAtkAlt">Especial Secundário</div>
+          <div class="text-[10px] font-orbitron font-bold text-amber-400" id="cdAtkAlt">CD: 2 turnos</div>
+        </button>
+
+        <button id="btnAtkSpec" onclick="handlePlayerAction('spec')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-purple-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-purple-400 truncate group-hover:text-purple-300" id="nameAtkSpec">Ataque Especial</div>
+          <div class="text-[10px] text-slate-400 truncate" id="subAtkSpec">Golpe Supremo</div>
+          <div class="text-[10px] font-orbitron font-bold text-purple-400" id="cdAtkSpec">CD: 3 turnos</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- TELA MINIGAMES -->
+    <section id="screenMinigame" class="hidden z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl flex flex-col items-center">
+      <div class="w-full flex justify-between items-center mb-4">
+        <div>
+          <h2 id="mgTitle" class="font-orbitron font-bold text-lg md:text-xl text-amber-400">MINIGAME - ROBUSTUS</h2>
+          <p id="mgSubtitle" class="text-xs text-slate-400">Clique nos drones para destruí-los antes que eles te causem dano!</p>
         </div>
-
-        <!-- ==================== MODAL VICTORY / GAMEOVER ==================== -->
-        <div id="modal-result" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="glass-panel p-8 rounded-3xl max-w-md w-full text-center border-2 border-slate-700 flex flex-col items-center shadow-2xl">
-                <div id="res-icon-bg" class="w-20 h-20 rounded-full flex items-center justify-center mb-4 text-4xl shadow-inner">
-                    <i id="res-icon" class="fas fa-trophy text-yellow-400"></i>
-                </div>
-                <h2 id="res-title" class="text-3xl font-extrabold font-display text-white mb-2">VITÓRIA!</h2>
-                <p id="res-desc" class="text-gray-300 text-sm mb-6">Você superou o desafio com maestria!</p>
-
-                <div class="flex gap-4 w-full">
-                    <!-- Continue button: dynamically hidden on defeat -->
-                    <button id="res-btn-continue" onclick="continueStoryOrPvP()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 font-bold text-white shadow-lg hover:brightness-110 transition">
-                        CONTINUAR
-                    </button>
-                    
-                    <!-- Main Menu button -->
-                    <button id="res-btn-menu" onclick="resetAndReturnToMenu()" class="flex-1 py-3 rounded-xl glass-panel text-gray-300 font-bold hover:bg-slate-800 transition">
-                        MENU PRINCIPAL
-                    </button>
-                </div>
-            </div>
+        <div class="text-right font-orbitron">
+          <div class="text-xs text-slate-400">VIDA DO VILÃO</div>
+          <div id="mgBossHpTxt" class="text-lg font-bold text-red-500">100%</div>
         </div>
+      </div>
 
+      <div class="relative w-full aspect-[16/9] max-h-[380px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center">
+        <canvas id="mgCanvas" class="w-full h-full cursor-crosshair"></canvas>
+        <div id="mgOverlay" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4"></div>
+        <button id="btnWebFree" onclick="releaseWeb()" class="hidden absolute bottom-4 right-4 z-30 px-4 py-3 bg-slate-200 text-slate-900 font-black font-orbitron text-sm rounded-xl border-2 border-white shadow-xl hover:bg-white active:scale-95 flex items-center gap-2">
+          🕸️ LIBERTAR-SE DA TEIA!
+        </button>
+      </div>
+
+      <div id="mgControlsDesc" class="mt-4 text-xs font-mono text-slate-400 text-center">
+        Controles: Clique nos drones na tela para destruí-los.
+      </div>
+    </section>
+
+    <!-- MODAL DERROTA -->
+    <div id="modalDefeat" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-red-600/50 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
+        <div class="text-5xl mb-4">💔</div>
+        <h3 class="text-2xl font-orbitron font-black text-red-500 mb-2">VOCÊ FOI DERROTADO!</h3>
+        <p class="text-slate-300 text-xs md:text-sm mb-6">Reinicie sua jornada escolhendo seu herói novamente!</p>
+        <button onclick="goToMenu()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-orbitron font-bold rounded-xl transition shadow-lg shadow-red-600/40">
+          MENU PRINCIPAL
+        </button>
+      </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="relative z-10 py-3 text-center text-xs text-slate-500 font-display">
-        MSF - Miraculous Strong Fighter &copy; 2026 - Universe Edition
-    </footer>
+    <!-- MODAL VITÓRIA -->
+    <div id="modalVictory" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-emerald-500/50 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
+        <div class="text-5xl mb-4">🏆</div>
+        <h3 class="text-2xl font-orbitron font-black text-emerald-400 mb-2">GRANDE VITÓRIA!</h3>
+        <p id="victoryTxt" class="text-slate-300 text-xs md:text-sm mb-6">Parabéns! Você concluiu todos os desafios!</p>
+        <button onclick="goToMenu()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-orbitron font-bold rounded-xl transition shadow-lg shadow-emerald-600/40">
+          VOLTAR AO MENU
+        </button>
+      </div>
+    </div>
 
-    <!-- GAME LOGIC SCRIPT -->
-    <script>
-        /* ==================== AUDIO SYNTHESIZER ==================== */
-        class SoundFX {
-            constructor() {
-                this.ctx = null;
-                this.enabled = true;
-            }
+  </main>
 
-            init() {
-                if (!this.ctx) {
-                    try {
-                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    } catch (e) {
-                        console.warn("AudioContext init error:", e);
-                    }
-                }
-            }
+  <script>
+    const HEROES = {
+      ladybug: {
+        id: 'ladybug', name: 'LadyBug', icon: '🐞', color: '#ef4444', hp: 110, maxHp: 110, def: 12, speed: 15, hitChance: 0.90, critChance: 0.15,
+        attacks: {
+          basic: { name: 'Arremesso de Yoyo', desc: 'Ataque padrão', cd: 0, power: 18 },
+          alt: { name: 'Miraculous Boost', desc: '+50% Dano por 3 turnos', cd: 2, type: 'buff' },
+          spec: { name: 'Prender com Yoyo', desc: 'Atordoa e golpeia', cd: 3, power: 25, stun: true }
+        }
+      },
+      catnoir: {
+        id: 'catnoir', name: 'Cat Noir', icon: '🐈‍⬛', color: '#22c55e', hp: 100, maxHp: 100, def: 10, speed: 18, hitChance: 0.88, critChance: 0.25,
+        attacks: {
+          basic: { name: 'Gavras Felinas', desc: 'Crítico elevado', cd: 0, power: 16 },
+          alt: { name: 'Golpe de Bastão', desc: 'Ataque médio', cd: 2, power: 22 },
+          spec: { name: 'Cataclismo', desc: '50% VIDA TOTAL do alvo', cd: 3, type: 'cataclysm' }
+        }
+      },
+      pegasus: {
+        id: 'pegasus', name: 'Pegasus', icon: '🐴', color: '#3b82f6', hp: 95, maxHp: 95, def: 8, speed: 22, hitChance: 0.92, critChance: 0.18,
+        attacks: {
+          basic: { name: 'Soco Portal', desc: 'Longa distância', cd: 0, power: 17 },
+          alt: { name: 'Teleporte', desc: 'Ataque surpresa', cd: 2, power: 24 },
+          spec: { name: 'Multi-Portais', desc: '6 a 10 socos portais', cd: 3, type: 'multi' }
+        }
+      },
+      renarouge: {
+        id: 'renarouge', name: 'Rena Rouge', icon: '🦊', color: '#f97316', hp: 100, maxHp: 100, def: 9, speed: 17, hitChance: 0.88, critChance: 0.20,
+        attacks: {
+          basic: { name: 'Soco Miragem', desc: 'Ataque ilusório', cd: 0, power: 17 },
+          alt: { name: 'Clone Falso', desc: 'Ganha esquiva', cd: 2, type: 'dodge' },
+          spec: { name: 'Exército de Clones', desc: 'Ataque conjunto', cd: 3, power: 34 }
+        }
+      },
+      hawkmoth: {
+        id: 'hawkmoth', name: 'Hawk Moth', icon: '🦋', color: '#a855f7', hp: 115, maxHp: 115, def: 13, speed: 12, hitChance: 0.85, critChance: 0.12,
+        attacks: {
+          basic: { name: 'Golpe de Cajado', desc: 'Ataque de cajado', cd: 0, power: 19 },
+          alt: { name: 'Bola de Akuma', desc: 'Atordoa e reduz força', cd: 2, power: 15, stun: true, debuff: true },
+          spec: { name: 'Akumatizado', desc: 'Dobra o dano por 2 turnos', cd: 3, type: 'akuma' }
+        }
+      },
+      vesperia: {
+        id: 'vesperia', name: 'Vesperia', icon: '🐝', color: '#eab308', hp: 105, maxHp: 105, def: 11, speed: 16, hitChance: 0.89, critChance: 0.15,
+        attacks: {
+          basic: { name: 'Soco de Ferrão', desc: 'Soco direto', cd: 0, power: 18 },
+          alt: { name: 'Disparos de Mel', desc: 'Desacelera alvo', cd: 2, power: 16, slow: true },
+          spec: { name: 'Colmeia', desc: '20% a 33% do HP max', cd: 3, type: 'hive' }
+        }
+      }
+    };
 
-            playHit() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
+    const VILLAINS = [
+      { id: 'robustus', name: 'Robustus', icon: '🤖', color: '#64748b', hp: 105, maxHp: 105, def: 10, speed: 10, hitChance: 0.82, critChance: 0.08, attacks: { basic: { name: 'Drones Disparadores', power: 13 }, alt: { name: 'Fios Elétricos', power: 17 }, spec: { name: 'Ondas Sonoras', power: 21 } }, mgType: 'robustus' },
+      { id: 'glaciator', name: 'Glaciator', icon: '🍦', color: '#38bdf8', hp: 115, maxHp: 115, def: 11, speed: 9, hitChance: 0.82, critChance: 0.10, attacks: { basic: { name: 'Mini Monstro', power: 14 }, alt: { name: 'Colher de Sorvete', power: 18 }, spec: { name: 'Punho de Sorvete', power: 22, stunChance: 0.20 } }, mgType: 'glaciator' },
+      { id: 'mayura', name: 'Mayura', icon: '🦚', color: '#6b21a8', hp: 110, maxHp: 110, def: 9, speed: 13, hitChance: 0.85, critChance: 0.12, attacks: { basic: { name: 'Rajada de Ventos', power: 15 }, alt: { name: 'Sentimonstro', power: 19 }, spec: { name: 'Transf. Sentimonstro', power: 23, stunChance: 0.30 } }, mgType: 'mayura' },
+      { id: 'penalty', name: 'Penalty', icon: '⚽', color: '#10b981', hp: 105, maxHp: 105, def: 8, speed: 15, hitChance: 0.82, critChance: 0.12, attacks: { basic: { name: 'Chute de Bola', randomDamage: [5, 20] }, alt: { name: 'Apito Atordoante', power: 12, stunChance: 0.35 }, spec: { name: 'Cartão Vermelho', hitChance: 0.75, curHpFraction: 0.25, stun: true } }, mgType: 'penalty' },
+      { id: 'anansi', name: 'Anansi', icon: '🕷️', color: '#b91c1c', hp: 115, maxHp: 115, def: 10, speed: 14, hitChance: 0.84, critChance: 0.14, attacks: { basic: { name: 'Mordida Venenosa', power: 13, poisonChance: 0.15 }, alt: { name: 'Disparo de Teias', power: 10, blockRandomAtk: true }, spec: { name: 'Sorte de Aranha', power: 18 } }, mgType: 'anansi' },
+      { id: 'befana', name: 'Befana', icon: '🧹', color: '#d97706', hp: 110, maxHp: 110, def: 10, speed: 12, hitChance: 0.83, critChance: 0.12, attacks: { basic: { name: 'Bengalas de Açúcar', power: 14 }, alt: { name: 'Tiro de Arma', power: 18, stunChance: 0.35 }, spec: { name: 'Bombas de Fumaça', power: 21, smokeTurns: 3 } }, mgType: 'befana' }
+    ];
 
-            playCrit() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
-            }
+    let gameState = { mode: 'story', storyStage: 0, turn: 'p1', p1: null, p2: null, p1CdAlt: 2, p1CdSpec: 3, p2CdAlt: 2, p2CdSpec: 3, minigameActive: false, mgBossHp: 100 };
 
-            playBuff() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.3);
-            }
+    function logMsg(msg, colorClass = 'text-slate-300') {
+      const box = document.getElementById('combatLog');
+      const line = document.createElement('div');
+      line.className = colorClass;
+      line.innerText = `> ${msg}`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
 
-            playLaser() {
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
-            }
+    function goToMenu() {
+      document.getElementById('screenMenu').classList.remove('hidden');
+      document.getElementById('screenSelectChar').classList.add('hidden');
+      document.getElementById('screenCombat').classList.add('hidden');
+      document.getElementById('screenMinigame').classList.add('hidden');
+      document.getElementById('modalDefeat').classList.add('hidden');
+      document.getElementById('modalVictory').classList.add('hidden');
+      document.getElementById('gameModeBadge').classList.add('hidden');
+      stopMinigameLoop();
+    }
+
+    function selectMode(mode) {
+      gameState.mode = mode;
+      gameState.storyStage = 0;
+      document.getElementById('gameModeBadge').classList.remove('hidden');
+      document.getElementById('screenMenu').classList.add('hidden');
+      document.getElementById('screenSelectChar').classList.remove('hidden');
+      const grid = document.getElementById('charGrid');
+      grid.innerHTML = '';
+      Object.values(HEROES).forEach(hero => {
+        const btn = document.createElement('button');
+        btn.className = 'bg-slate-950 border border-slate-800 hover:border-red-500 rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition hover:scale-105 group';
+        btn.onclick = () => handleCharSelect(hero.id);
+        btn.innerHTML = `<div class="text-4xl">${hero.icon}</div><div class="font-orbitron font-bold text-sm text-slate-200">${hero.name}</div><div class="text-[10px] text-slate-400">HP: ${hero.hp}</div>`;
+        grid.appendChild(btn);
+      });
+    }
+
+    let pvpSelectedP1 = null;
+    function handleCharSelect(heroId) {
+      if (gameState.mode === 'story') {
+        gameState.p1 = JSON.parse(JSON.stringify(HEROES[heroId]));
+        gameState.p2 = JSON.parse(JSON.stringify(VILLAINS[0]));
+        startCombat();
+      } else {
+        if (!pvpSelectedP1) {
+          pvpSelectedP1 = heroId;
+          document.getElementById('selectTitle').innerText = 'JOGADOR 2: ESCOLHA SEU HERÓI';
+        } else {
+          gameState.p1 = JSON.parse(JSON.stringify(HEROES[pvpSelectedP1]));
+          gameState.p2 = JSON.parse(JSON.stringify(HEROES[heroId]));
+          pvpSelectedP1 = null;
+          startCombat();
+        }
+      }
+    }
+
+    function startCombat() {
+      document.getElementById('screenSelectChar').classList.add('hidden');
+      document.getElementById('screenCombat').classList.remove('hidden');
+      gameState.p1CdAlt = 2; gameState.p1CdSpec = 3; gameState.p2CdAlt = 2; gameState.p2CdSpec = 3;
+      gameState.turn = gameState.p1.speed >= gameState.p2.speed ? 'p1' : 'p2';
+      document.getElementById('combatLog').innerHTML = `<div>> Luta iniciada contra ${gameState.p2.name}!</div>`;
+      updateCombatUI();
+      if (gameState.turn === 'p2' && gameState.mode === 'story') setTimeout(processAiTurn, 1000);
+    }
+
+    function updateCombatUI() {
+      document.getElementById('p1Avatar').innerText = gameState.p1.icon;
+      document.getElementById('p1Name').innerText = gameState.p1.name;
+      document.getElementById('p1HpBar').style.width = Math.max(0, (gameState.p1.hp / gameState.p1.maxHp) * 100) + '%';
+      document.getElementById('p1HpTxt').innerText = `${Math.ceil(gameState.p1.hp)} / ${gameState.p1.maxHp}`;
+
+      document.getElementById('p2Avatar').innerText = gameState.p2.icon;
+      document.getElementById('p2Name').innerText = gameState.p2.name;
+      document.getElementById('p2HpBar').style.width = Math.max(0, (gameState.p2.hp / gameState.p2.maxHp) * 100) + '%';
+      document.getElementById('p2HpTxt').innerText = `${Math.ceil(gameState.p2.hp)} / ${gameState.p2.maxHp}`;
+
+      document.getElementById('turnBanner').innerText = gameState.turn === 'p1' ? `TURNO DE: ${gameState.p1.name}` : `TURNO DE: ${gameState.p2.name}`;
+      const isAiTurn = (gameState.mode === 'story' && gameState.turn === 'p2');
+
+      const btnBasic = document.getElementById('btnAtkBasic');
+      const btnAlt = document.getElementById('btnAtkAlt');
+      const btnSpec = document.getElementById('btnAtkSpec');
+
+      const activeChar = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
+      const cdAlt = gameState.turn === 'p1' ? gameState.p1CdAlt : gameState.p2CdAlt;
+      const cdSpec = gameState.turn === 'p1' ? gameState.p1CdSpec : gameState.p2CdSpec;
+
+      document.getElementById('nameAtkBasic').innerText = activeChar.attacks.basic.name;
+      document.getElementById('nameAtkAlt').innerText = activeChar.attacks.alt.name;
+      document.getElementById('cdAtkAlt').innerText = cdAlt > 0 ? `CD: ${cdAlt}t` : "PRONTO";
+      document.getElementById('nameAtkSpec').innerText = activeChar.attacks.spec.name;
+      document.getElementById('cdAtkSpec').innerText = cdSpec > 0 ? `CD: ${cdSpec}t` : "PRONTO";
+
+      if (isAiTurn) {
+        btnBasic.disabled = true; btnAlt.disabled = true; btnSpec.disabled = true;
+        document.getElementById('turnStatusBadge').innerText = "VILÃO PENSANDO...";
+      } else {
+        document.getElementById('turnStatusBadge').innerText = "SUA VEZ DE ATACAR";
+        btnBasic.disabled = false;
+        btnAlt.disabled = cdAlt > 0;
+        btnSpec.disabled = cdSpec > 0;
+      }
+    }
+
+    function handlePlayerAction(type) {
+      if (gameState.mode === 'story' && gameState.turn === 'p2') return;
+      executeAttack(type, gameState.turn === 'p1' ? gameState.p1 : gameState.p2, gameState.turn === 'p1' ? gameState.p2 : gameState.p1);
+    }
+
+    function executeAttack(type, attacker, defender) {
+      if (type === 'alt') { if (gameState.turn === 'p1') gameState.p1CdAlt = 3; else gameState.p2CdAlt = 3; }
+      else if (type === 'spec') { if (gameState.turn === 'p1') gameState.p1CdSpec = 4; else gameState.p2CdSpec = 4; }
+
+      const atkInfo = attacker.attacks[type];
+      logMsg(`${attacker.name} usou ${atkInfo.name}!`, 'text-amber-400');
+
+      let baseDmg = atkInfo.power || 15;
+      if (atkInfo.type === 'cataclysm') baseDmg = defender.maxHp * 0.5;
+      else if (atkInfo.type === 'buff') baseDmg = 0;
+
+      let finalDmg = Math.max(2, baseDmg - (defender.def * 0.3));
+      if (baseDmg === 0) finalDmg = 0;
+
+      defender.hp = Math.max(0, defender.hp - finalDmg);
+      if (finalDmg > 0) logMsg(`Causou ${Math.ceil(finalDmg)} de dano!`, 'text-red-300');
+
+      if (defender.hp <= 0) { handleCombatEnd(); return; }
+      finishTurn();
+    }
+
+    function finishTurn() {
+      if (gameState.turn === 'p1') {
+        if (gameState.p1CdAlt > 0) gameState.p1CdAlt--;
+        if (gameState.p1CdSpec > 0) gameState.p1CdSpec--;
+      } else {
+        if (gameState.p2CdAlt > 0) gameState.p2CdAlt--;
+        if (gameState.p2CdSpec > 0) gameState.p2CdSpec--;
+      }
+      gameState.turn = gameState.turn === 'p1' ? 'p2' : 'p1';
+      updateCombatUI();
+      if (gameState.turn === 'p2' && gameState.mode === 'story') setTimeout(processAiTurn, 800);
+    }
+
+    function processAiTurn() {
+      if (gameState.p2.hp <= 0 || gameState.p1.hp <= 0) return;
+      let available = ['basic'];
+      if (gameState.p2CdAlt === 0) available.push('alt');
+      if (gameState.p2CdSpec === 0) available.push('spec');
+      executeAttack(available[Math.floor(Math.random() * available.length)], gameState.p2, gameState.p1);
+    }
+
+    function handleCombatEnd() {
+      if (gameState.p1.hp > 0) {
+        logMsg(`VITÓRIA!`, 'text-emerald-400 font-bold');
+        if (gameState.mode === 'story') {
+          setTimeout(() => {
+            document.getElementById('screenCombat').classList.add('hidden');
+            startMinigame(VILLAINS[gameState.storyStage].mgType);
+          }, 1000);
+        } else {
+          document.getElementById('modalVictory').classList.remove('hidden');
+        }
+      } else {
+        document.getElementById('modalDefeat').classList.remove('hidden');
+      }
+    }
+
+    let mgLoopId = null;
+    let mgState = {};
+
+    function startMinigame(type) {
+      document.getElementById('screenMinigame').classList.remove('hidden');
+      gameState.minigameActive = true;
+      gameState.mgBossHp = 100;
+      document.getElementById('mgBossHpTxt').innerText = '100%';
+      const canvas = document.getElementById('mgCanvas');
+      canvas.width = 640; canvas.height = 360;
+      if (type === 'robustus') initRobustusMg();
+      else advanceStoryStage();
+    }
+
+    function stopMinigameLoop() {
+      gameState.minigameActive = false;
+      if (mgLoopId) cancelAnimationFrame(mgLoopId);
+    }
+
+    /* MINIGAME ROBUSTUS CORRIGIDO */
+    function initRobustusMg() {
+      const canvas = document.getElementById('mgCanvas');
+      const ctx = canvas.getContext('2d');
+      mgState = { playerHp: 100, drones: [], spawnTimer: 0, lasers: [] };
+
+      function update() {
+        if (!gameState.minigameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Gera novos drones
+        mgState.spawnTimer++;
+        if (mgState.spawnTimer > 60 && mgState.drones.length < 5) {
+          mgState.spawnTimer = 0;
+          mgState.drones.push({
+            x: Math.random() * 560 + 40,
+            y: Math.random() * 220 + 40,
+            timer: 0,
+            chargeTime: 110 // tempo até atirar
+          });
         }
 
-        const sound = new SoundFX();
+        // Atualiza e desenha cada drone
+        mgState.drones.forEach(d => {
+          d.timer++;
 
-        function toggleAudio() {
-            sound.enabled = !sound.enabled;
-            const icon = document.getElementById('sound-icon');
-            if (sound.enabled) {
-                icon.className = 'fas fa-volume-up';
-            } else {
-                icon.className = 'fas fa-volume-mute text-red-400';
+          // Drone atira se carregar 100%
+          if (d.timer >= d.chargeTime) {
+            d.timer = 0; // Reinicia para atirar novamente!
+            mgState.playerHp = Math.max(0, mgState.playerHp - 5);
+            mgState.lasers.push({ x: d.x, y: d.y, life: 10 });
+
+            // Efeito visual de dano na tela
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Se vida zerar -> Derrota
+            if (mgState.playerHp <= 0) {
+              stopMinigameLoop();
+              document.getElementById('screenMinigame').classList.add('hidden');
+              document.getElementById('modalDefeat').classList.remove('hidden');
+              return;
             }
+          }
+
+          // Desenha o corpo do Drone
+          ctx.fillStyle = '#64748b';
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, 22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Desenha a barra/anel de carregamento vermelho do tiro
+          const chargeRatio = d.timer / d.chargeTime;
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, 28, 0, Math.PI * 2 * chargeRatio);
+          ctx.stroke();
+        });
+
+        // Desenha tiros de laser efêmeros
+        mgState.lasers.forEach((l, idx) => {
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(l.x, l.y);
+          ctx.lineTo(canvas.width / 2, canvas.height);
+          ctx.stroke();
+          l.life--;
+          if (l.life <= 0) mgState.lasers.splice(idx, 1);
+        });
+
+        // HUD do jogador no minigame
+        ctx.fillStyle = '#ef4444'; ctx.font = '700 16px Orbitron';
+        ctx.fillText(`SUA VIDA: ${Math.ceil(mgState.playerHp)}%`, 20, 30);
+
+        mgLoopId = requestAnimationFrame(update);
+      }
+
+      // Destruição do drone ao clicar
+      canvas.onclick = (e) => {
+        if (!gameState.minigameActive) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        for (let i = mgState.drones.length - 1; i >= 0; i--) {
+          const d = mgState.drones[i];
+          if (Math.hypot(d.x - mx, d.y - my) <= 32) {
+            mgState.drones.splice(i, 1);
+            gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 10);
+            document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+
+            if (gameState.mgBossHp <= 0) {
+              stopMinigameLoop();
+              advanceStoryStage();
+            }
+            break;
+          }
         }
-
-        /* ==================== SVG AVATARS ==================== */
-        const SVGS = {
-            Ladybug: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#e63946"/><circle cx="35" cy="35" r="8" fill="#1d3557"/><circle cx="65" cy="35" r="8" fill="#1d3557"/><circle cx="50" cy="55" r="10" fill="#1d3557"/><circle cx="30" cy="70" r="7" fill="#1d3557"/><circle cx="70" cy="70" r="7" fill="#1d3557"/><path d="M 30 25 Q 50 10 70 25" stroke="#1d3557" stroke-width="4" fill="none"/></svg>`,
-            CatNoir: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#1d2d44"/><polygon points="20,25 35,5 45,30" fill="#06d6a0"/><polygon points="80,25 65,5 55,30" fill="#06d6a0"/><circle cx="35" cy="45" r="9" fill="#06d6a0"/><circle cx="65" cy="45" r="9" fill="#06d6a0"/><ellipse cx="35" cy="45" rx="2" ry="7" fill="#000"/><ellipse cx="65" cy="45" rx="2" ry="7" fill="#000"/><path d="M 40 70 Q 50 78 60 70" stroke="#ffd166" stroke-width="4" fill="none"/></svg>`,
-            Pegasus: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#2b2d42"/><circle cx="50" cy="50" r="35" fill="none" stroke="#4cc9f0" stroke-width="4" stroke-dasharray="8 4"/><circle cx="35" cy="45" r="7" fill="#4cc9f0"/><circle cx="65" cy="45" r="7" fill="#4cc9f0"/><path d="M 25 35 L 75 35" stroke="#ffd166" stroke-width="5"/><path d="M 30 65 Q 50 80 70 65" stroke="#4cc9f0" stroke-width="3" fill="none"/></svg>`,
-            RenaRouge: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#f77f00"/><polygon points="20,30 30,5 45,35" fill="#fff"/><polygon points="80,30 70,5 55,35" fill="#fff"/><polygon points="25,28 32,12 42,32" fill="#d62828"/><polygon points="75,28 68,12 58,32" fill="#d62828"/><circle cx="35" cy="48" r="8" fill="#fff"/><circle cx="65" cy="48" r="8" fill="#fff"/><circle cx="35" cy="48" r="4" fill="#000"/><circle cx="65" cy="48" r="4" fill="#000"/><path d="M 40 72 Q 50 78 60 72" stroke="#fff" stroke-width="4" fill="none"/></svg>`,
-            HawkMoth: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#4a154b"/><path d="M 20 40 Q 50 20 80 40 Q 50 90 20 40" fill="#7209b7" opacity="0.6"/><circle cx="35" cy="45" r="7" fill="#e0aaff"/><circle cx="65" cy="45" r="7" fill="#e0aaff"/><polygon points="50,30 40,50 60,50" fill="#3c096c"/><path d="M 35 70 L 65 70" stroke="#e0aaff" stroke-width="3"/></svg>`,
-            Vesperia: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><circle cx="50" cy="50" r="45" fill="#ffd166"/><path d="M 10 35 L 90 35 L 85 50 L 15 50 Z" fill="#000"/><path d="M 15 65 L 85 65 L 80 80 L 20 80 Z" fill="#000"/><circle cx="35" cy="42" r="7" fill="#ffd166"/><circle cx="65" cy="42" r="7" fill="#ffd166"/><circle cx="35" cy="42" r="3" fill="#000"/><circle cx="65" cy="42" r="3" fill="#000"/></svg>`,
-            Robustus: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><rect x="10" y="10" width="80" height="80" rx="15" fill="#334155"/><rect x="25" y="25" width="50" height="30" rx="5" fill="#0f172a"/><circle cx="40" cy="40" r="6" fill="#ef4444"/><circle cx="60" cy="40" r="6" fill="#ef4444"/><line x1="20" y1="70" x2="80" y2="70" stroke="#ef4444" stroke-width="6"/><line x1="50" y1="10" x2="50" y2="0" stroke="#ef4444" stroke-width="4"/></svg>`,
-            Glaciator: `<svg viewBox="0 0 100 100" class="w-full h-full glow-effect"><path d="M 50 10 C 20 10 15 50 15 85 L 85 85 C 85 50 80 10 50 10 Z" fill="#a5f3fc"/><circle cx="35" cy="40" r="8" fill="#0284c7"/><circle cx="65" cy="40" r="8" fill="#0284c7"/><path d="M 30 65 Q 50 85 70 65" stroke="#0284c7" stroke-width="5" fill="none"/><circle cx="50" cy="25" r="12" fill="#f43f5e"/><circle cx="30" cy="30" r="10" fill="#fde047"/></svg>`
-        };
-
-        /* ==================== CHARACTERS DATA ==================== */
-        const CHARACTERS = [
-            {
-                id: 'Ladybug',
-                name: 'Ladybug',
-                theme: 'theme-ladybug',
-                hp: 220,
-                maxHp: 220,
-                atk: 38,
-                def: 14,
-                spd: 16,
-                acc: 0.90,
-                critChance: 0.20,
-                attacks: [
-                    { name: 'Arremesso Yo-Yo', desc: 'Dano Média Dist.', cd: 0, cdMax: 0 },
-                    { name: 'Miraculous', desc: '+50% Dano (3t)', cd: 2, cdMax: 2, type: 'buff' },
-                    { name: 'Prender Yo-Yo', desc: 'Stun + Combo Socos', cd: 2, cdMax: 2, type: 'stun' }
-                ]
-            },
-            {
-                id: 'CatNoir',
-                name: 'Cat Noir',
-                theme: 'theme-catnoir',
-                hp: 210,
-                maxHp: 210,
-                atk: 42,
-                def: 12,
-                spd: 18,
-                acc: 0.88,
-                critChance: 0.25,
-                attacks: [
-                    { name: 'Garras Felinas', desc: 'Dano Curta Dist.', cd: 0, cdMax: 0 },
-                    { name: 'Bastão', desc: 'Golpe Tático Rápido', cd: 2, cdMax: 2 },
-                    { name: 'Cataclismo', desc: '-50% HP Total Rival', cd: 2, cdMax: 2, type: 'cataclysm' }
-                ]
-            },
-            {
-                id: 'Pegasus',
-                name: 'Pegasus',
-                theme: 'theme-pegasus',
-                hp: 200,
-                maxHp: 200,
-                atk: 36,
-                def: 11,
-                spd: 20,
-                acc: 0.92,
-                critChance: 0.18,
-                attacks: [
-                    { name: 'Soco Portal', desc: 'Ataque Longa Dist.', cd: 0, cdMax: 0 },
-                    { name: 'Teleporte', desc: 'Ataque Ponto Cego', cd: 2, cdMax: 2, type: 'pierce' },
-                    { name: 'Multi-Portais', desc: '6 a 10 Socos', cd: 2, cdMax: 2, type: 'multi' }
-                ]
-            },
-            {
-                id: 'RenaRouge',
-                name: 'Rena Rouge',
-                theme: 'theme-renarouge',
-                hp: 205,
-                maxHp: 205,
-                atk: 37,
-                def: 13,
-                spd: 17,
-                acc: 0.89,
-                critChance: 0.22,
-                attacks: [
-                    { name: 'Soco Miragem', desc: 'Miragem Ataca', cd: 0, cdMax: 0 },
-                    { name: 'Clone Falso', desc: 'Esquiva Próx. Ataque', cd: 2, cdMax: 2, type: 'dodge' },
-                    { name: 'Exército Clones', desc: 'Ataque de 3 Clones', cd: 2, cdMax: 2, type: 'clones' }
-                ]
-            },
-            {
-                id: 'HawkMoth',
-                name: 'Hawk Moth',
-                theme: 'theme-hawkmoth',
-                hp: 230,
-                maxHp: 230,
-                atk: 40,
-                def: 15,
-                spd: 12,
-                acc: 0.87,
-                critChance: 0.15,
-                attacks: [
-                    { name: 'Golpe Cajado', desc: 'Dano Média Dist.', cd: 0, cdMax: 0 },
-                    { name: 'Bola de Akuma', desc: 'Stun + Debuff -20%', cd: 2, cdMax: 2, type: 'debuff' },
-                    { name: 'Akumatizado', desc: '2x Dano por 2 turnos', cd: 2, cdMax: 2, type: 'akuma' }
-                ]
-            },
-            {
-                id: 'Vesperia',
-                name: 'Vesperia',
-                theme: 'theme-vesperia',
-                hp: 215,
-                maxHp: 215,
-                atk: 39,
-                def: 14,
-                spd: 15,
-                acc: 0.91,
-                critChance: 0.20,
-                attacks: [
-                    { name: 'Soco Ferrão', desc: 'Dano Ferrão Curto', cd: 0, cdMax: 0 },
-                    { name: 'Disparos Mel', desc: 'Desacelera Inimigo', cd: 2, cdMax: 2, type: 'slow' },
-                    { name: 'Colmeia', desc: 'Dano 20-33% HP Total', cd: 2, cdMax: 2, type: 'hive' }
-                ]
-            }
-        ];
-
-        /* ==================== VILLAINS DATA ==================== */
-        const VILLAINS = [
-            {
-                id: 'Robustus',
-                name: 'Robustus (O Robô)',
-                theme: 'theme-hawkmoth',
-                hp: 260,
-                maxHp: 260,
-                atk: 36,
-                def: 16,
-                spd: 13,
-                acc: 0.88,
-                critChance: 0.15,
-                attacks: [
-                    { name: 'Disparo Drone', desc: 'Ataca com drones', cd: 0, cdMax: 0 },
-                    { name: 'Fios Elétricos', desc: 'Choque elétrico', cd: 2, cdMax: 2 },
-                    { name: 'Onda Sonora', desc: 'Atordoamento', cd: 2, cdMax: 2, type: 'debuff' }
-                ],
-                minigameId: 'robustus'
-            },
-            {
-                id: 'Glaciator',
-                name: 'Glaciator (Sorvete)',
-                theme: 'theme-pegasus',
-                hp: 300,
-                maxHp: 300,
-                atk: 40,
-                def: 18,
-                spd: 10,
-                acc: 0.85,
-                critChance: 0.18,
-                attacks: [
-                    { name: 'Mini Monstro', desc: 'Invocação fria', cd: 0, cdMax: 0 },
-                    { name: 'Colher Sorvete', desc: 'Golpe pesado', cd: 2, cdMax: 2 },
-                    { name: 'Punho Sorvete', desc: '20% Congelamento', cd: 2, cdMax: 2, type: 'freeze' }
-                ],
-                minigameId: 'glaciator'
-            }
-        ];
-
-        /* ==================== STATE MANAGEMENT ==================== */
-        let gameState = {
-            mode: 'story', // 'story' or 'pvp'
-            storyStage: 0, // 0: Robustus Fight, 1: Robustus MG, 2: Glaciator Fight, 3: Glaciator MG
-            p1: null,
-            p2: null,
-            turn: 1, // 1 for P1, 2 for P2
-            round: 1,
-            isProcessing: false
-        };
-
-        /* ==================== NAVIGATION ==================== */
-        function showScreen(screenId) {
-            ['screen-menu', 'screen-char-select', 'screen-battle', 'screen-minigame'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(screenId).classList.remove('hidden');
-        }
-
-        function selectGameMode(mode) {
-            gameState.mode = mode;
-            gameState.storyStage = 0;
-            gameState.p1 = null;
-            gameState.p2 = null;
-            renderCharSelect();
-            showScreen('screen-char-select');
-        }
-
-        function resetAndReturnToMenu() {
-            // Cancel minigame loops
-            if (typeof mgLoopId !== 'undefined' && mgLoopId) {
-                cancelAnimationFrame(mgLoopId);
-            }
-
-            // Hide modals & overlays
-            document.getElementById('modal-result').classList.add('hidden');
-            document.getElementById('mg-start-overlay').classList.remove('hidden');
-
-            // Reset Game State
-            gameState.mode = 'story';
-            gameState.storyStage = 0;
-            gameState.p1 = null;
-            gameState.p2 = null;
-            gameState.turn = 1;
-            gameState.isProcessing = false;
-
-            showScreen('screen-menu');
-        }
-
-        /* ==================== CHARACTER SELECT ==================== */
-        function renderCharSelect() {
-            const grid = document.getElementById('char-grid');
-            grid.innerHTML = '';
-
-            const title = document.getElementById('select-title');
-            const subtitle = document.getElementById('select-subtitle');
-
-            if (gameState.mode === 'pvp') {
-                title.innerText = gameState.p1 ? "JOGADOR 2: ESCOLHA SEU HERÓI" : "JOGADOR 1: ESCOLHA SEU HERÓI";
-                subtitle.innerText = gameState.p1 ? "O Jogador 1 escolheu " + gameState.p1.name : "Selecione o combatente do P1";
-            } else {
-                title.innerText = "MODO HISTÓRIA: ESCOLHA SEU HERÓI";
-                subtitle.innerText = "Sua jornada começará contra o temível Robustus!";
-            }
-
-            CHARACTERS.forEach(char => {
-                const card = document.createElement('div');
-                card.className = `glass-card p-5 rounded-2xl flex flex-col items-center cursor-pointer border-2 ${char.theme}`;
-                card.onclick = () => onSelectCharacter(char);
-
-                card.innerHTML = `
-                    <div class="w-24 h-24 mb-3 flex items-center justify-center">
-                        ${SVGS[char.id]}
-                    </div>
-                    <h3 class="text-xl font-bold font-display text-white mb-1">${char.name}</h3>
-                    <div class="w-full grid grid-cols-2 gap-2 text-xs font-mono text-gray-300 mt-2 bg-slate-900/50 p-2 rounded-lg">
-                        <div>HP: <span class="text-emerald-400 font-bold">${char.hp}</span></div>
-                        <div>ATK: <span class="text-red-400 font-bold">${char.atk}</span></div>
-                        <div>DEF: <span class="text-blue-400 font-bold">${char.def}</span></div>
-                        <div>SPD: <span class="text-yellow-400 font-bold">${char.spd}</span></div>
-                    </div>
-                    <div class="w-full mt-3 pt-2 border-t border-slate-700 text-[11px] text-gray-400 space-y-1">
-                        <div><strong class="text-white">Especial:</strong> ${char.attacks[2].name}</div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function cloneEntity(entity) {
-            return {
-                ...entity,
-                currentHp: entity.hp,
-                attacks: entity.attacks.map(a => ({ ...a, cdCurrent: a.cd })), // Standard 2-turn initial cooldown
-                buffs: {
-                    damageBoostTurns: 0,
-                    stunnedTurns: 0,
-                    dodgeNext: false,
-                    akumaTurns: 0,
-                    atkDebuffTurns: 0,
-                    slowTurns: 0
-                }
-            };
-        }
-
-        function onSelectCharacter(char) {
-            if (gameState.mode === 'pvp') {
-                if (!gameState.p1) {
-                    gameState.p1 = cloneEntity(char);
-                    renderCharSelect();
-                } else {
-                    gameState.p2 = cloneEntity(char);
-                    startBattle();
-                }
-            } else {
-                // Story mode
-                gameState.p1 = cloneEntity(char);
-                gameState.p2 = cloneEntity(VILLAINS[0]); // Start with Robustus
-                startBattle();
-            }
-        }
-
-        /* ==================== BATTLE SYSTEM ==================== */
-        function startBattle() {
-            showScreen('screen-battle');
-            
-            // Set Player 1 HUD
-            document.getElementById('p1-name').innerText = gameState.p1.name;
-            document.getElementById('p1-avatar-container').innerHTML = SVGS[gameState.p1.id];
-            document.getElementById('p1-card').className = `glass-panel p-5 md:p-6 rounded-2xl flex flex-col items-center relative overflow-hidden ${gameState.p1.theme}`;
-
-            // Set Player 2 HUD
-            document.getElementById('p2-name').innerText = gameState.p2.name;
-            document.getElementById('p2-avatar-container').innerHTML = SVGS[gameState.p2.id];
-            document.getElementById('p2-card').className = `glass-panel p-5 md:p-6 rounded-2xl flex flex-col items-center relative overflow-hidden ${gameState.p2.theme}`;
-
-            document.getElementById('p1-label').innerText = "JOGADOR 1";
-            document.getElementById('p2-label').innerText = gameState.mode === 'pvp' ? "JOGADOR 2" : "VILÃO";
-
-            document.getElementById('battle-log').innerHTML = `<div class="text-slate-400 italic">Combate Iniciado!</div>`;
-
-            // Initiative Check
-            gameState.turn = gameState.p1.spd >= gameState.p2.spd ? 1 : 2;
-            gameState.isProcessing = false;
-
-            updateHUD();
-            logMessage(`Iniciativa: ${gameState.turn === 1 ? gameState.p1.name : gameState.p2.name} ataca primeiro!`, 'text-yellow-400');
-
-            if (gameState.mode === 'story' && gameState.turn === 2) {
-                setTimeout(processAITurn, 1200);
-            }
-        }
-
-        function updateHUD() {
-            // Update HP Bars
-            const p1HpPct = Math.max(0, (gameState.p1.currentHp / gameState.p1.hp) * 100);
-            const p2HpPct = Math.max(0, (gameState.p2.currentHp / gameState.p2.hp) * 100);
-
-            document.getElementById('p1-hp-bar').style.width = `${p1HpPct}%`;
-            document.getElementById('p1-hp-text').innerText = `${Math.ceil(gameState.p1.currentHp)} / ${gameState.p1.hp}`;
-
-            document.getElementById('p2-hp-bar').style.width = `${p2HpPct}%`;
-            document.getElementById('p2-hp-text').innerText = `${Math.ceil(gameState.p2.currentHp)} / ${gameState.p2.hp}`;
-
-            // Active character & Turn Indicator
-            const activeChar = gameState.turn === 1 ? gameState.p1 : gameState.p2;
-            document.getElementById('turn-text').innerText = `Turno de: ${activeChar.name}`;
-
-            // Controls status banner text
-            const statusEl = document.getElementById('controls-status');
-            const isPlayerTurn = (gameState.mode === 'pvp') || (gameState.mode === 'story' && gameState.turn === 1);
-
-            if (gameState.mode === 'story' && gameState.turn === 2) {
-                statusEl.innerText = "VILÃO PENSANDO...";
-                statusEl.className = "text-xs font-bold text-red-400 animate-pulse truncate";
-            } else if (gameState.isProcessing) {
-                statusEl.innerText = "AGUARDE...";
-                statusEl.className = "text-xs font-bold text-yellow-400 truncate";
-            } else {
-                statusEl.innerText = `TURNO DE ${activeChar.name.toUpperCase()}`;
-                statusEl.className = "text-xs font-bold text-emerald-400 truncate";
-            }
-
-            // DYNAMIC BUTTON UPDATE - GUARANTEED FIXED SIZES
-            const attacker = gameState.turn === 1 ? gameState.p1 : gameState.p2;
-            
-            attacker.attacks.forEach((atk, idx) => {
-                const btn = document.getElementById(`btn-atk-${idx+1}`);
-                const nameEl = document.getElementById(`atk${idx+1}-name`);
-                const cdEl = document.getElementById(`atk${idx+1}-cd`);
-
-                nameEl.innerText = atk.name;
-
-                const isCd = atk.cdCurrent > 0;
-                btn.disabled = !isPlayerTurn || gameState.isProcessing || isCd;
-
-                if (idx === 0) {
-                    cdEl.innerText = 'Pronto';
-                    cdEl.className = "text-[10px] text-emerald-400 block truncate w-full leading-tight font-bold mt-0.5";
-                } else {
-                    if (isCd) {
-                        cdEl.innerText = `Recarga: ${atk.cdCurrent}t`;
-                        cdEl.className = "text-[10px] text-yellow-400 block truncate w-full leading-tight font-bold mt-0.5";
-                    } else {
-                        cdEl.innerText = 'Disponível';
-                        cdEl.className = "text-[10px] text-emerald-400 block truncate w-full leading-tight font-bold mt-0.5";
-                    }
-                }
-            });
-
-            // Helper tip text
-            const tipEl = document.getElementById('skill-tip-desc');
-            if (isPlayerTurn) {
-                tipEl.innerText = `Habilidades Especiais requerem tempo de recarga após o uso.`;
-            } else {
-                tipEl.innerText = `Aguarde a ação do seu oponente...`;
-            }
-
-            // Buff Badges
-            renderBuffs('p1-buffs', gameState.p1);
-            renderBuffs('p2-buffs', gameState.p2);
-        }
-
-        function renderBuffs(containerId, entity) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            if (entity.buffs.damageBoostTurns > 0) {
-                container.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-300 border border-red-500/40">+50% Dano (${entity.buffs.damageBoostTurns}t)</span>`;
-            }
-            if (entity.buffs.stunnedTurns > 0) {
-                container.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">Stunned</span>`;
-            }
-            if (entity.buffs.dodgeNext) {
-                container.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-orange-500/20 text-orange-300 border border-orange-500/40">Miragem Ativa</span>`;
-            }
-            if (entity.buffs.akumaTurns > 0) {
-                container.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40">Akuma (2x Dano)</span>`;
-            }
-            if (entity.buffs.atkDebuffTurns > 0) {
-                container.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/40">-20% Força</span>`;
-            }
-        }
-
-        function logMessage(msg, colorClass = 'text-gray-300') {
-            const log = document.getElementById('battle-log');
-            const div = document.createElement('div');
-            div.className = colorClass;
-            div.innerText = msg;
-            log.appendChild(div);
-            log.scrollTop = log.scrollHeight;
-        }
-
-        function triggerFloatingText(targetCardId, text, color) {
-            const card = document.getElementById(targetCardId);
-            const floatEl = document.createElement('div');
-            floatEl.className = `floating-damage ${color}`;
-            floatEl.innerText = text;
-            floatEl.style.left = `${30 + Math.random() * 40}%`;
-            floatEl.style.top = `40%`;
-            card.appendChild(floatEl);
-            setTimeout(() => floatEl.remove(), 900);
-
-            // Screen Shake
-            card.classList.add('screen-shake');
-            setTimeout(() => card.classList.remove('screen-shake'), 350);
-        }
-
-        /* ==================== ATTACK LOGIC ==================== */
-        function executeAttack(attackIndex) {
-            if (gameState.isProcessing) return;
-            
-            // STRICT USER INPUT LOCK ON AI TURN
-            if (gameState.mode === 'story' && gameState.turn === 2) {
-                return;
-            }
-
-            const attacker = gameState.turn === 1 ? gameState.p1 : gameState.p2;
-            const defender = gameState.turn === 1 ? gameState.p2 : gameState.p1;
-            const defenderCardId = gameState.turn === 1 ? 'p2-card' : 'p1-card';
-
-            const attack = attacker.attacks[attackIndex];
-
-            // Check Cooldown
-            if (attack.cdCurrent > 0) {
-                logMessage(`Habilidade ${attack.name} em recarga!`, 'text-yellow-400');
-                return;
-            }
-
-            gameState.isProcessing = true;
-            updateHUD();
-
-            // Handle Dodge / Illusion Buff
-            if (defender.buffs.dodgeNext) {
-                defender.buffs.dodgeNext = false;
-                logMessage(`${attacker.name} atacou uma MIRAGEM FALSA de ${defender.name}! O ataque falhou!`, 'text-cyan-400');
-                sound.playLaser();
-                finishTurn(attackIndex);
-                return;
-            }
-
-            // Accuracy Check
-            if (Math.random() > attacker.acc) {
-                logMessage(`${attacker.name} usou ${attack.name}, mas ERROU o alvo!`, 'text-slate-400');
-                finishTurn(attackIndex);
-                return;
-            }
-
-            // Base Damage Calculation
-            let rawAtk = attacker.atk;
-            if (attacker.buffs.damageBoostTurns > 0) rawAtk *= 1.5;
-            if (attacker.buffs.akumaTurns > 0) rawAtk *= 2.0;
-            if (attacker.buffs.atkDebuffTurns > 0) rawAtk *= 0.8;
-
-            let damage = 0;
-            let isCrit = Math.random() < attacker.critChance;
-
-            // Skill Mechanics
-            if (attack.type === 'cataclysm') {
-                damage = defender.hp * 0.5;
-                logMessage(`CATACLISMO! ${attacker.name} destruiu 50% da vida total de ${defender.name}!`, 'text-emerald-400 font-bold');
-            } else if (attack.type === 'multi') {
-                const hits = Math.floor(Math.random() * 5) + 6;
-                const hitDmg = (rawAtk * 0.25);
-                damage = hits * Math.max(4, hitDmg - defender.def * 0.2);
-                logMessage(`${attacker.name} usou Multi-Portais! Acertou ${hits} socos em sequência!`, 'text-cyan-400');
-            } else if (attack.type === 'hive') {
-                const ratio = 0.20 + Math.random() * 0.133;
-                damage = defender.hp * ratio;
-                logMessage(`Colmeia de abelhas atacou ${defender.name} causando dano em enxame!`, 'text-yellow-300');
-            } else if (attack.type === 'buff') {
-                attacker.buffs.damageBoostTurns = 3;
-                logMessage(`${attacker.name} ativou o MIRACULOUS! Dano aumentado por 3 turnos!`, 'text-red-400');
-                sound.playBuff();
-            } else if (attack.type === 'dodge') {
-                attacker.buffs.dodgeNext = true;
-                logMessage(`${attacker.name} criou uma MIRAGEM PERFEITA para se esquivar!`, 'text-orange-400');
-                sound.playBuff();
-            } else if (attack.type === 'akuma') {
-                attacker.buffs.akumaTurns = 2;
-                damage = Math.max(10, rawAtk - defender.def);
-                logMessage(`${attacker.name} invocou um Servo Akumatizado! Dano dobrado por 2 turnos!`, 'text-purple-400');
-            } else if (attack.type === 'debuff') {
-                defender.buffs.atkDebuffTurns = 2;
-                defender.buffs.stunnedTurns = 1;
-                damage = Math.max(10, rawAtk - defender.def);
-                logMessage(`${attacker.name} usou ${attack.name}! ${defender.name} atordoado e enfraquecido!`, 'text-purple-300');
-            } else {
-                let effectiveDef = attack.type === 'pierce' ? defender.def * 0.3 : defender.def;
-                damage = Math.max(12, (rawAtk * (isCrit ? 1.6 : 1.0)) - effectiveDef);
-            }
-
-            if (attack.type === 'stun') {
-                defender.buffs.stunnedTurns = 1;
-                logMessage(`${defender.name} foi PRESO e ATORDOADO por 1 turno!`, 'text-yellow-400');
-            }
-
-            // Apply Damage
-            if (damage > 0) {
-                defender.currentHp = Math.max(0, defender.currentHp - damage);
-                const text = isCrit ? `CRÍTICO! -${Math.ceil(damage)}` : `-${Math.ceil(damage)}`;
-                const color = isCrit ? 'text-yellow-400' : 'text-red-500';
-                triggerFloatingText(defenderCardId, text, color);
-
-                if (isCrit) sound.playCrit(); else sound.playHit();
-
-                logMessage(`${attacker.name} usou ${attack.name} causando ${Math.ceil(damage)} de dano em ${defender.name}!`, isCrit ? 'text-yellow-400 font-bold' : 'text-gray-200');
-            }
-
-            finishTurn(attackIndex);
-        }
-
-        function finishTurn(usedAttackIdx) {
-            const attacker = gameState.turn === 1 ? gameState.p1 : gameState.p2;
-            const defender = gameState.turn === 1 ? gameState.p2 : gameState.p1;
-
-            // Set Cooldown for used skill
-            if (usedAttackIdx > 0) {
-                attacker.attacks[usedAttackIdx].cdCurrent = attacker.attacks[usedAttackIdx].cdMax + 1;
-            }
-
-            // Reduce Cooldowns for attacker skills
-            attacker.attacks.forEach(atk => {
-                if (atk.cdCurrent > 0) atk.cdCurrent--;
-            });
-
-            // Reduce Buffs
-            if (attacker.buffs.damageBoostTurns > 0) attacker.buffs.damageBoostTurns--;
-            if (attacker.buffs.akumaTurns > 0) attacker.buffs.akumaTurns--;
-            if (attacker.buffs.atkDebuffTurns > 0) attacker.buffs.atkDebuffTurns--;
-
-            updateHUD();
-
-            // Check Win Condition
-            if (defender.currentHp <= 0) {
-                setTimeout(() => handleBattleEnd(gameState.turn === 1 ? 'p1' : 'p2'), 600);
-                return;
-            }
-
-            // Next Turn Switch
-            setTimeout(() => {
-                // Check Stun
-                if (defender.buffs.stunnedTurns > 0) {
-                    defender.buffs.stunnedTurns--;
-                    logMessage(`${defender.name} está atordoado e perdeu a vez!`, 'text-yellow-400');
-                    gameState.isProcessing = false;
-                    updateHUD();
-                    if (gameState.mode === 'story' && gameState.turn === 2) {
-                        setTimeout(processAITurn, 1000);
-                    }
-                    return;
-                }
-
-                gameState.turn = gameState.turn === 1 ? 2 : 1;
-                gameState.isProcessing = false;
-                updateHUD();
-
-                if (gameState.mode === 'story' && gameState.turn === 2) {
-                    setTimeout(processAITurn, 1000);
-                }
-            }, 800);
-        }
-
-        /* ==================== AI TURN LOGIC ==================== */
-        function processAITurn() {
-            if (gameState.p2.currentHp <= 0 || gameState.turn !== 2) return;
-
-            const ai = gameState.p2;
-            let chosenIdx = 0;
-            if (ai.attacks[2].cdCurrent === 0) chosenIdx = 2;
-            else if (ai.attacks[1].cdCurrent === 0) chosenIdx = 1;
-
-            const attacker = gameState.p2;
-            const defender = gameState.p1;
-            const defenderCardId = 'p1-card';
-            const attack = attacker.attacks[chosenIdx];
-
-            gameState.isProcessing = true;
-            updateHUD();
-
-            // Handle Dodge
-            if (defender.buffs.dodgeNext) {
-                defender.buffs.dodgeNext = false;
-                logMessage(`${attacker.name} atacou uma MIRAGEM FALSA de ${defender.name}! O ataque falhou!`, 'text-cyan-400');
-                sound.playLaser();
-                finishTurn(chosenIdx);
-                return;
-            }
-
-            // Accuracy Check
-            if (Math.random() > attacker.acc) {
-                logMessage(`${attacker.name} usou ${attack.name}, mas ERROU o alvo!`, 'text-slate-400');
-                finishTurn(chosenIdx);
-                return;
-            }
-
-            let rawAtk = attacker.atk;
-            if (attacker.buffs.atkDebuffTurns > 0) rawAtk *= 0.8;
-
-            let damage = Math.max(10, rawAtk - defender.def);
-            let isCrit = Math.random() < attacker.critChance;
-            if (isCrit) damage *= 1.5;
-
-            if (attack.type === 'debuff') {
-                defender.buffs.atkDebuffTurns = 2;
-                logMessage(`${attacker.name} usou ${attack.name}! Reduziu seu ataque em 20%!`, 'text-purple-300');
-            } else if (attack.type === 'freeze') {
-                if (Math.random() < 0.20) {
-                    defender.buffs.stunnedTurns = 1;
-                    logMessage(`${attacker.name} congelou ${defender.name} com Punho de Sorvete!`, 'text-cyan-300');
-                }
-            }
-
-            defender.currentHp = Math.max(0, defender.currentHp - damage);
-            const text = isCrit ? `CRÍTICO! -${Math.ceil(damage)}` : `-${Math.ceil(damage)}`;
-            const color = isCrit ? 'text-yellow-400' : 'text-red-500';
-            triggerFloatingText(defenderCardId, text, color);
-
-            if (isCrit) sound.playCrit(); else sound.playHit();
-
-            logMessage(`${attacker.name} usou ${attack.name} causando ${Math.ceil(damage)} de dano!`, isCrit ? 'text-yellow-400 font-bold' : 'text-gray-200');
-
-            finishTurn(chosenIdx);
-        }
-
-        /* ==================== BATTLE END & STORY FLOW ==================== */
-        function handleBattleEnd(winner) {
-            const modal = document.getElementById('modal-result');
-            const resTitle = document.getElementById('res-title');
-            const resDesc = document.getElementById('res-desc');
-            const resIcon = document.getElementById('res-icon');
-            const resIconBg = document.getElementById('res-icon-bg');
-            const btnContinue = document.getElementById('res-btn-continue');
-
-            modal.classList.remove('hidden');
-
-            if (gameState.mode === 'pvp') {
-                const winnerName = winner === 'p1' ? gameState.p1.name : gameState.p2.name;
-                resTitle.innerText = `VITÓRIA DE ${winnerName.toUpperCase()}!`;
-                resDesc.innerText = `O combate PvP terminou com uma vitória espetacular!`;
-                resIcon.className = 'fas fa-trophy text-yellow-400';
-                resIconBg.className = 'w-20 h-20 rounded-full flex items-center justify-center mb-4 text-4xl bg-yellow-500/20';
-                btnContinue.classList.remove('hidden');
-            } else {
-                if (winner === 'p1') {
-                    // Player won the stage
-                    btnContinue.classList.remove('hidden');
-                    if (gameState.storyStage === 0) {
-                        resTitle.innerText = "ROBUSTUS DERROTADO!";
-                        resDesc.innerText = "Agora você precisa superar o Desafio dos Drones no Minigame!";
-                        resIcon.className = 'fas fa-shield-halved text-cyan-400';
-                        resIconBg.className = 'w-20 h-20 rounded-full flex items-center justify-center mb-4 text-4xl bg-cyan-500/20';
-                    } else if (gameState.storyStage === 2) {
-                        resTitle.innerText = "GLACIATOR DERROTADO!";
-                        resDesc.innerText = "Agora prepare-se para o Desafio da Tempestade de Sorvete!";
-                        resIcon.className = 'fas fa-snowflake text-blue-400';
-                        resIconBg.className = 'w-20 h-20 rounded-full flex items-center justify-center mb-4 text-4xl bg-blue-500/20';
-                    }
-                } else {
-                    // Player lost -> ONLY MENU PRINCIPAL BUTTON SHOWN ON DEFEAT
-                    btnContinue.classList.add('hidden');
-                    resTitle.innerText = "DERROTA...";
-                    resDesc.innerText = "Você foi derrotado. Escolha seu herói e tente novamente!";
-                    resIcon.className = 'fas fa-skull text-red-500';
-                    resIconBg.className = 'w-20 h-20 rounded-full flex items-center justify-center mb-4 text-4xl bg-red-500/20';
-                }
-            }
-        }
-
-        function continueStoryOrPvP() {
-            document.getElementById('modal-result').classList.add('hidden');
-
-            if (gameState.mode === 'pvp') {
-                showScreen('screen-menu');
-                return;
-            }
-
-            if (gameState.p1.currentHp <= 0) {
-                resetAndReturnToMenu();
-                return;
-            }
-
-            if (gameState.storyStage === 0) {
-                gameState.storyStage = 1;
-                initMinigame('robustus');
-            } else if (gameState.storyStage === 1) {
-                gameState.storyStage = 2;
-                gameState.p2 = cloneEntity(VILLAINS[1]);
-                gameState.p1.currentHp = gameState.p1.hp; // Heal for next boss
-                startBattle();
-            } else if (gameState.storyStage === 2) {
-                gameState.storyStage = 3;
-                initMinigame('glaciator');
-            } else if (gameState.storyStage === 3) {
-                alert("PARABÉNS! Você concluiu o Modo História com sucesso!");
-                resetAndReturnToMenu();
-            }
-        }
-
-        /* ==================== MINIGAMES ENGINE ==================== */
-        let mgLoopId = null;
-        let mgData = {};
-
-        function initMinigame(type) {
-            showScreen('screen-minigame');
-            document.getElementById('mg-start-overlay').classList.remove('hidden');
-
-            const title = document.getElementById('mg-title');
-            const desc = document.getElementById('mg-desc');
-            const startTitle = document.getElementById('mg-start-title');
-            const startInst = document.getElementById('mg-start-instructions');
-
-            if (type === 'robustus') {
-                title.innerText = "MINIGAME - ROBUSTUS";
-                desc.innerText = "Clique nos drones para destruí-los!";
-                startTitle.innerText = "DESAFIO DE DRONES";
-                startInst.innerText = "Clique com o mouse nos drones voadores. Cada drone destruído tira 5% da vida do Robustus. Se sua vida zerar, você perde!";
-            } else {
-                title.innerText = "MINIGAME - GLACIATOR";
-                desc.innerText = "Use A e D para mover. Clique no Glaciator para atacar!";
-                startTitle.innerText = "TEMPESTADE DE SORVETE";
-                startInst.innerText = "Desvie das bolas de sorvete caindo usando 'A' (Esquerda) e 'D' (Direita). Clique freneticamente no Glaciator para tirar a vida dele!";
-            }
-
-            mgData = {
-                type: type,
-                playerHp: 100,
-                bossHp: 100,
-                drones: [],
-                iceballs: [],
-                playerPosition: 1, // 0: Left, 1: Center, 2: Right
-                lastClickTime: 0
-            };
-
-            updateMinigameHUD();
-        }
-
-        function updateMinigameHUD() {
-            document.getElementById('mg-player-hp').innerText = `${Math.ceil(mgData.playerHp)}%`;
-            document.getElementById('mg-boss-hp').innerText = `${Math.ceil(mgData.bossHp)}%`;
-        }
-
-        function startMinigameLogic() {
-            document.getElementById('mg-start-overlay').classList.add('hidden');
-            const canvas = document.getElementById('mg-canvas');
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-
-            if (mgData.type === 'robustus') {
-                setupRobustusMinigame(canvas, ctx);
-            } else {
-                setupGlaciatorMinigame(canvas, ctx);
-            }
-        }
-
-        /* ----- ROBUSTUS MINIGAME ----- */
-        function setupRobustusMinigame(canvas, ctx) {
-            let lastSpawn = Date.now();
-
-            canvas.onclick = (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                for (let i = mgData.drones.length - 1; i >= 0; i--) {
-                    const d = mgData.drones[i];
-                    const dist = Math.hypot(d.x - clickX, d.y - clickY);
-                    if (dist < d.radius + 12) {
-                        mgData.drones.splice(i, 1);
-                        mgData.bossHp = Math.max(0, mgData.bossHp - 5);
-                        sound.playLaser();
-                        updateMinigameHUD();
-
-                        if (mgData.bossHp <= 0) {
-                            endMinigame(true);
-                            return;
-                        }
-                    }
-                }
-            };
-
-            function loop() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (Date.now() - lastSpawn > 750) {
-                    mgData.drones.push({
-                        x: Math.random() * (canvas.width - 60) + 30,
-                        y: Math.random() * (canvas.height - 150) + 30,
-                        radius: 20,
-                        lastShoot: Date.now()
-                    });
-                    lastSpawn = Date.now();
-                }
-
-                mgData.drones.forEach(d => {
-                    ctx.fillStyle = '#ef4444';
-                    ctx.beginPath();
-                    ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#000';
-                    ctx.beginPath();
-                    ctx.arc(d.x, d.y, 7, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    if (Date.now() - d.lastShoot > 1400) {
-                        mgData.playerHp = Math.max(0, mgData.playerHp - 4);
-                        d.lastShoot = Date.now();
-                        updateMinigameHUD();
-                        sound.playHit();
-
-                        if (mgData.playerHp <= 0) {
-                            endMinigame(false);
-                            return;
-                        }
-                    }
-                });
-
-                if (mgData.playerHp > 0 && mgData.bossHp > 0) {
-                    mgLoopId = requestAnimationFrame(loop);
-                }
-            }
-
-            loop();
-        }
-
-        /* ----- GLACIATOR MINIGAME ----- */
-        function setupGlaciatorMinigame(canvas, ctx) {
-            let lastIceball = Date.now();
-
-            const handleKeyDown = (e) => {
-                if (e.key === 'a' || e.key === 'A') {
-                    if (mgData.playerPosition > 0) mgData.playerPosition--;
-                } else if (e.key === 'd' || e.key === 'D') {
-                    if (mgData.playerPosition < 2) mgData.playerPosition++;
-                }
-            };
-
-            window.addEventListener('keydown', handleKeyDown);
-
-            canvas.onclick = () => {
-                const now = Date.now();
-                if (now - mgData.lastClickTime >= 30) {
-                    mgData.lastClickTime = now;
-                    mgData.bossHp = Math.max(0, mgData.bossHp - 2.5);
-                    sound.playHit();
-                    updateMinigameHUD();
-
-                    if (mgData.bossHp <= 0) {
-                        window.removeEventListener('keydown', handleKeyDown);
-                        endMinigame(true);
-                    }
-                }
-            };
-
-            function loop() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const laneWidth = canvas.width / 3;
-
-                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-                ctx.lineWidth = 2;
-                for (let i = 1; i < 3; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * laneWidth, 0);
-                    ctx.lineTo(i * laneWidth, canvas.height);
-                    ctx.stroke();
-                }
-
-                ctx.fillStyle = '#a5f3fc';
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, 60, 45, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#0284c7';
-                ctx.font = '14px Orbitron';
-                ctx.textAlign = 'center';
-                ctx.fillText('CLIQUE AQUI PARA ATACAR!', canvas.width / 2, 65);
-
-                if (Date.now() - lastIceball > 550) {
-                    mgData.iceballs.push({
-                        lane: Math.floor(Math.random() * 3),
-                        y: 120,
-                        speed: 5.5
-                    });
-                    lastIceball = Date.now();
-                }
-
-                for (let i = mgData.iceballs.length - 1; i >= 0; i--) {
-                    const b = mgData.iceballs[i];
-                    b.y += b.speed;
-
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.beginPath();
-                    ctx.arc(b.lane * laneWidth + laneWidth / 2, b.y, 20, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    if (b.y >= canvas.height - 70 && b.y <= canvas.height - 20) {
-                        if (b.lane === mgData.playerPosition) {
-                            mgData.playerHp = Math.max(0, mgData.playerHp - 15);
-                            mgData.iceballs.splice(i, 1);
-                            updateMinigameHUD();
-                            sound.playHit();
-
-                            if (mgData.playerHp <= 0) {
-                                window.removeEventListener('keydown', handleKeyDown);
-                                endMinigame(false);
-                                return;
-                            }
-                        }
-                    }
-
-                    if (b.y > canvas.height + 30) mgData.iceballs.splice(i, 1);
-                }
-
-                const playerX = mgData.playerPosition * laneWidth + laneWidth / 2;
-                ctx.fillStyle = '#06d6a0';
-                ctx.beginPath();
-                ctx.arc(playerX, canvas.height - 40, 22, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (mgData.playerHp > 0 && mgData.bossHp > 0) {
-                    mgLoopId = requestAnimationFrame(loop);
-                }
-            }
-
-            loop();
-        }
-
-        function endMinigame(won) {
-            cancelAnimationFrame(mgLoopId);
-            const canvas = document.getElementById('mg-canvas');
-            canvas.onclick = null;
-
-            handleBattleEnd(won ? 'p1' : 'boss');
-        }
-
-        /* ==================== AMBIENT BACKGROUND PARTICLES ==================== */
-        function initBgCanvas() {
-            const canvas = document.getElementById('bg-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const particles = Array.from({ length: 40 }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 2 + 1,
-                color: ['#e63946', '#7209b7', '#4cc9f0', '#ffd166'][Math.floor(Math.random() * 4)],
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5
-            }));
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.x < 0) p.x = canvas.width;
-                    if (p.x > canvas.width) p.x = 0;
-                    if (p.y < 0) p.y = canvas.height;
-                    if (p.y > canvas.height) p.y = 0;
-
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = 0.4;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
-
-        window.onload = () => {
-            initBgCanvas();
-        };
-
-        window.onresize = () => {
-            const canvas = document.getElementById('bg-canvas');
-            if (canvas) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-        };
-    </script>
+      };
+
+      update();
+    }
+
+    function advanceStoryStage() {
+      gameState.storyStage++;
+      if (gameState.storyStage >= VILLAINS.length) {
+        document.getElementById('screenMinigame').classList.add('hidden');
+        document.getElementById('modalVictory').classList.remove('hidden');
+      } else {
+        document.getElementById('screenMinigame').classList.add('hidden');
+        gameState.p2 = JSON.parse(JSON.stringify(VILLAINS[gameState.storyStage]));
+        gameState.p1.hp = gameState.p1.maxHp;
+        startCombat();
+      }
+    }
+
+    const bgCanvas = document.getElementById('fxCanvas');
+    function resizeCanvas() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+  </script>
 </body>
 </html>
