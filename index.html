@@ -10,8 +10,8 @@
 
     body {
       font-family: 'Rajdhani', sans-serif;
-      background: #090a0f;
-      color: #fff;
+      background: #07080d;
+      color: #f8fafc;
       user-select: none;
       overflow-x: hidden;
     }
@@ -25,21 +25,21 @@
     }
 
     .action-btn {
-      height: 72px;
-      transition: all 0.15s ease-in-out;
+      height: 76px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
 
     .action-btn:disabled {
-      opacity: 0.4;
+      opacity: 0.42;
       cursor: not-allowed;
-      filter: grayscale(80%);
+      filter: grayscale(85%);
       transform: none !important;
       box-shadow: none !important;
     }
 
     .action-btn:not(:disabled):hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.38);
     }
 
     @keyframes shake {
@@ -51,257 +51,433 @@
     }
     .animate-shake { animation: shake 0.3s ease-in-out; }
 
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      50% { transform: translateY(-25px) scale(1.2); }
-      100% { opacity: 0; transform: translateY(-45px) scale(0.9); }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 24px rgba(168, 85, 247, 0.6); }
     }
-    .float-num {
-      position: absolute;
-      animation: floatUp 0.8s ease-out forwards;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      pointer-events: none;
-      z-index: 50;
-    }
+    .glow-frame { animation: pulseGlow 3s infinite ease-in-out; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
 
   <!-- HEADER -->
-  <header class="w-full bg-slate-900/90 border-b border-red-500/30 p-4 shadow-lg backdrop-blur flex justify-between items-center z-10">
+  <header class="w-full bg-slate-900/95 border-b border-red-500/30 p-3 md:p-4 shadow-xl backdrop-blur flex justify-between items-center z-20">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-orbitron font-bold text-xl shadow-red-500/50 shadow-md">M</div>
-      <h1 class="text-xl md:text-2xl font-orbitron font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-500 to-purple-500">
-        MSF <span class="text-xs md:text-sm font-normal text-slate-400 block md:inline">Miraculous Strong Fighter</span>
-      </h1>
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-rose-800 border border-red-400/50 flex items-center justify-center font-orbitron font-black text-xl shadow-lg shadow-red-600/30">
+        🐞
+      </div>
+      <div>
+        <h1 class="text-lg md:text-2xl font-orbitron font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-500 to-purple-500">
+          MSF <span class="text-xs md:text-sm font-normal text-slate-400 block md:inline">Miraculous Strong Fighter</span>
+        </h1>
+      </div>
     </div>
-    <div id="gameModeBadge" class="hidden px-3 py-1 bg-red-950/80 border border-red-500/40 rounded-full text-xs font-orbitron text-red-400">
-      MODO HISTÓRIA
+    <div class="flex items-center gap-3">
+      <div id="gameModeBadge" class="hidden px-3 py-1 bg-red-950/90 border border-red-500/40 rounded-full text-xs font-orbitron text-red-400">
+        MODO HISTÓRIA
+      </div>
+      <button id="btnHeaderMenu" onclick="goToMenu()" class="hidden px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-orbitron text-slate-300 transition">
+        MENU
+      </button>
     </div>
   </header>
 
   <!-- CONTAINER PRINCIPAL -->
   <main class="flex-1 flex items-center justify-center p-2 md:p-6 relative overflow-hidden">
-    
     <canvas id="fxCanvas" class="absolute inset-0 pointer-events-none z-0"></canvas>
 
-    <!-- SELEÇÃO DE MODO -->
-    <section id="screenMenu" class="z-10 w-full max-w-2xl bg-slate-900/80 border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl backdrop-blur text-center">
-      <h2 class="text-3xl font-orbitron font-bold text-red-500 mb-2">ESCOLHA SEU MODO DE JOGO</h2>
-      <p class="text-slate-400 mb-8">Enfrente vilões no Modo História ou desafie um amigo no Modo PvP x1!</p>
+    <!-- TELA 1: MENU INICIAL -->
+    <section id="screenMenu" class="z-10 w-full max-w-2xl bg-slate-900/85 border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl backdrop-blur text-center glow-frame">
+      <div class="inline-block px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-orbitron mb-3">
+        RPG DE TURNOS • UNIVERSO MIRACULOUS
+      </div>
+      <h2 class="text-3xl md:text-4xl font-orbitron font-black text-white mb-2">ESCOLHA SEU MODO</h2>
+      <p class="text-slate-400 text-sm mb-8">Domine os poderes dos Miraculous no Modo História ou enfrente um amigo no PvP x1!</p>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <button onclick="selectMode('story')" class="group p-6 bg-gradient-to-b from-red-900/40 to-slate-900 border border-red-500/30 hover:border-red-500 rounded-xl transition duration-200 text-left hover:scale-105">
+        <button onclick="selectMode('story')" class="group p-6 bg-gradient-to-b from-red-950/50 to-slate-900 border border-red-500/30 hover:border-red-500 rounded-xl transition duration-200 text-left hover:scale-[1.03]">
           <div class="text-2xl font-orbitron font-bold text-red-400 group-hover:text-red-300 mb-2">📜 Modo História</div>
-          <p class="text-xs text-slate-300 leading-relaxed">Derrote os 6 vilões e seus minigames em sequência!</p>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">Enfrente a sequência completa de batalhas e minigames exclusivos:</p>
+          <div class="text-[11px] font-mono text-slate-400">1. Robustus → 2. Glaciator → 3. Mayura → 4. Penalty → 5. Anansi → 6. Befana</div>
         </button>
 
-        <button onclick="selectMode('pvp')" class="group p-6 bg-gradient-to-b from-purple-900/40 to-slate-900 border border-purple-500/30 hover:border-purple-500 rounded-xl transition duration-200 text-left hover:scale-105">
+        <button onclick="selectMode('pvp')" class="group p-6 bg-gradient-to-b from-purple-950/50 to-slate-900 border border-purple-500/30 hover:border-purple-500 rounded-xl transition duration-200 text-left hover:scale-[1.03]">
           <div class="text-2xl font-orbitron font-bold text-purple-400 group-hover:text-purple-300 mb-2">⚔️ Modo PvP x1</div>
-          <p class="text-xs text-slate-300 leading-relaxed">Dois jogadores batalham no mesmo dispositivo!</p>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">Dois jogadores no mesmo dispositivo escolhem seus heróis favoritos e duelam em turnos estratégicos!</p>
+          <div class="text-[11px] font-mono text-slate-400">6 Heróis Balanceados • Críticos • Buffs e Controle</div>
         </button>
       </div>
     </section>
 
-    <!-- SELEÇÃO DE HERÓI -->
-    <section id="screenSelectChar" class="hidden z-10 w-full max-w-4xl bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-2xl backdrop-blur">
-      <h2 id="selectTitle" class="text-2xl font-orbitron font-bold text-center text-red-500 mb-6">ESCOLHA SEU HERÓI</h2>
-      <div id="charGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6"></div>
+    <!-- TELA 2: SELEÇÃO DE PERSONAGEM -->
+    <section id="screenSelectChar" class="hidden z-10 w-full max-w-5xl bg-slate-900/90 border border-slate-800 p-5 md:p-7 rounded-2xl shadow-2xl backdrop-blur">
+      <h2 id="selectTitle" class="text-2xl font-orbitron font-bold text-center text-red-500 mb-1">ESCOLHA SEU HERÓI</h2>
+      <p id="selectSubtitle" class="text-center text-xs text-slate-400 mb-6">Todos os atributos são balanceados para combates estratégicos</p>
+      
+      <div id="charGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+      
       <div class="flex justify-center">
-        <button onclick="goToMenu()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron rounded-lg transition">VOLTAR AO MENU</button>
+        <button onclick="goToMenu()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-orbitron text-xs rounded-lg transition">VOLTAR AO MENU</button>
       </div>
     </section>
 
-    <!-- TELA DE COMBATE -->
-    <section id="screenCombat" class="hidden z-10 w-full max-w-4xl flex flex-col gap-4">
-      <div id="arenaBox" class="relative bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl overflow-hidden min-h-[300px] flex flex-col justify-between">
+    <!-- TELA 3: COMBATE RPG DE TURNOS -->
+    <section id="screenCombat" class="hidden z-10 w-full max-w-4xl flex flex-col gap-3">
+      <div id="arenaBox" class="relative bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl overflow-hidden min-h-[320px] flex flex-col justify-between">
         
-        <div class="grid grid-cols-2 gap-4 z-10">
-          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+        <!-- HUD DOS LUTADORES -->
+        <div class="grid grid-cols-2 gap-3 md:gap-6 z-10">
+          <!-- JOGADOR 1 -->
+          <div class="bg-slate-950/75 border border-slate-800 p-3 rounded-xl">
             <div class="flex items-center gap-3 mb-2">
-              <div id="p1Avatar" class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xl border border-red-500/50">🐞</div>
-              <div class="overflow-hidden">
-                <div id="p1Name" class="font-orbitron font-bold text-sm md:text-base text-red-400 truncate">Ladybug</div>
-                <div id="p1Buffs" class="text-[10px] text-amber-400 h-4 truncate"></div>
+              <div id="p1Portrait" class="w-14 h-14 rounded-xl bg-slate-900 flex items-center justify-center border-2 border-red-500/60 shrink-0 overflow-hidden shadow-inner"></div>
+              <div class="overflow-hidden flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <div id="p1Name" class="font-orbitron font-bold text-sm md:text-base text-red-400 truncate">LadyBug</div>
+                  <span id="p1RoleBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">P1</span>
+                </div>
+                <div id="p1StatsMini" class="text-[10px] text-slate-400 font-mono truncate">DEF: 12 | VEL: 15 | CRIT: 15%</div>
+                <div id="p1StatusTags" class="text-[10px] text-amber-400 font-semibold h-4 truncate"></div>
               </div>
             </div>
             <div class="w-full bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
               <div id="p1HpBar" class="bg-gradient-to-r from-red-600 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
             </div>
-            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-400">
+            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-300">
               <span>HP</span>
               <span id="p1HpTxt">110 / 110</span>
             </div>
           </div>
 
-          <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl text-right">
+          <!-- JOGADOR 2 / VILÃO -->
+          <div class="bg-slate-950/75 border border-slate-800 p-3 rounded-xl">
             <div class="flex items-center justify-end gap-3 mb-2">
-              <div class="overflow-hidden">
-                <div id="p2Name" class="font-orbitron font-bold text-sm md:text-base text-purple-400 truncate">Robustus</div>
-                <div id="p2Buffs" class="text-[10px] text-amber-400 h-4 truncate"></div>
+              <div class="overflow-hidden flex-1 text-right">
+                <div class="flex items-center justify-between gap-1">
+                  <span id="p2RoleBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/30">FASE 1/6</span>
+                  <div id="p2Name" class="font-orbitron font-bold text-sm md:text-base text-purple-400 truncate">Robustus</div>
+                </div>
+                <div id="p2StatsMini" class="text-[10px] text-slate-400 font-mono truncate">DEF: 10 | VEL: 10 | CRIT: 10%</div>
+                <div id="p2StatusTags" class="text-[10px] text-amber-400 font-semibold h-4 truncate"></div>
               </div>
-              <div id="p2Avatar" class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center font-bold text-xl border border-purple-500/50">🤖</div>
+              <div id="p2Portrait" class="w-14 h-14 rounded-xl bg-slate-900 flex items-center justify-center border-2 border-purple-500/60 shrink-0 overflow-hidden shadow-inner"></div>
             </div>
             <div class="w-full bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-700">
               <div id="p2HpBar" class="bg-gradient-to-r from-red-600 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
             </div>
-            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-400">
-              <span id="p2HpTxt">105 / 105</span>
+            <div class="flex justify-between text-xs font-orbitron mt-1 text-slate-300">
+              <span id="p2HpTxt">100 / 100</span>
               <span>HP</span>
             </div>
           </div>
         </div>
 
-        <div id="turnBanner" class="text-center font-orbitron text-sm md:text-base font-bold my-4 py-1 px-4 bg-slate-800/80 border border-slate-700 rounded-full mx-auto text-amber-400 shadow">
-          TURNO DO JOGADOR 1
+        <!-- BANNER DE TURNO -->
+        <div class="flex items-center justify-center my-3">
+          <div id="turnBanner" class="text-center font-orbitron text-xs md:text-sm font-bold py-1.5 px-5 bg-slate-800/90 border border-slate-700 rounded-full text-amber-400 shadow-lg">
+            TURNO DE: LADYBUG
+          </div>
         </div>
 
-        <div id="combatLog" class="bg-slate-950/80 border border-slate-800 rounded-lg p-3 h-24 overflow-y-auto text-xs font-mono space-y-1 text-slate-300">
-          <div>> Luta iniciada! Prepare-se para o combate.</div>
+        <!-- LOG DE COMBATE -->
+        <div id="combatLog" class="bg-slate-950/85 border border-slate-800 rounded-xl p-3 h-28 overflow-y-auto text-xs font-mono space-y-1 text-slate-300">
+          <div>> Combate iniciado!</div>
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-2 px-4 text-xs flex justify-between items-center text-slate-300 h-8">
-        <span id="skillDescTxt" class="truncate">Selecione uma ação para realizar no seu turno.</span>
-        <span id="turnStatusBadge" class="font-orbitron font-bold text-red-400 text-[11px] shrink-0">SUA VEZ</span>
+      <!-- BARRA DE DESCRIÇÃO DA HABILIDADE -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs flex justify-between items-center text-slate-300 min-h-[36px]">
+        <span id="skillDescTxt" class="truncate pr-2">Passe o mouse ou selecione uma habilidade para atacar.</span>
+        <span id="turnStatusBadge" class="font-orbitron font-bold text-emerald-400 text-[11px] shrink-0">SUA VEZ</span>
       </div>
 
+      <!-- PAINEL FIXO DE AÇÕES (3 BOTÕES) -->
       <div id="actionPanel" class="fixed-action-bar grid grid-cols-3 gap-3">
-        <button id="btnAtkBasic" onclick="handlePlayerAction('basic')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-red-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
-          <div class="font-orbitron font-bold text-xs md:text-sm text-red-400 truncate group-hover:text-red-300" id="nameAtkBasic">Ataque Básico</div>
-          <div class="text-[10px] text-slate-400 truncate" id="subAtkBasic">Ataque Padrão</div>
-          <div class="text-[10px] font-orbitron font-bold text-emerald-400">PRONTO</div>
+        <button id="btnSlot0" onclick="handleSlotClick(0)" onmouseenter="previewSlot(0)" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-red-500 rounded-xl p-2.5 flex flex-col justify-between text-left relative overflow-hidden">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-red-400 truncate" id="slot0Name">Ataque Básico</div>
+          <div class="text-[10px] text-slate-400 truncate" id="slot0Sub">Golpe padrão</div>
+          <div class="text-[10px] font-orbitron font-bold text-emerald-400" id="slot0Status">PRONTO</div>
         </button>
 
-        <button id="btnAtkAlt" onclick="handlePlayerAction('alt')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-amber-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
-          <div class="font-orbitron font-bold text-xs md:text-sm text-amber-400 truncate group-hover:text-amber-300" id="nameAtkAlt">Ataque Alt.</div>
-          <div class="text-[10px] text-slate-400 truncate" id="subAtkAlt">Especial Secundário</div>
-          <div class="text-[10px] font-orbitron font-bold text-amber-400" id="cdAtkAlt">CD: 2 turnos</div>
+        <button id="btnSlot1" onclick="handleSlotClick(1)" onmouseenter="previewSlot(1)" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-amber-500 rounded-xl p-2.5 flex flex-col justify-between text-left relative overflow-hidden">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-amber-400 truncate" id="slot1Name">Ataque Alt.</div>
+          <div class="text-[10px] text-slate-400 truncate" id="slot1Sub">Habilidade tática</div>
+          <div class="text-[10px] font-orbitron font-bold text-amber-400" id="slot1Status">CD: 2t</div>
         </button>
 
-        <button id="btnAtkSpec" onclick="handlePlayerAction('spec')" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-purple-500 rounded-xl p-2 flex flex-col justify-between text-left relative overflow-hidden group">
-          <div class="font-orbitron font-bold text-xs md:text-sm text-purple-400 truncate group-hover:text-purple-300" id="nameAtkSpec">Ataque Especial</div>
-          <div class="text-[10px] text-slate-400 truncate" id="subAtkSpec">Golpe Supremo</div>
-          <div class="text-[10px] font-orbitron font-bold text-purple-400" id="cdAtkSpec">CD: 3 turnos</div>
+        <button id="btnSlot2" onclick="handleSlotClick(2)" onmouseenter="previewSlot(2)" class="action-btn bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700 hover:border-purple-500 rounded-xl p-2.5 flex flex-col justify-between text-left relative overflow-hidden">
+          <div class="font-orbitron font-bold text-xs md:text-sm text-purple-400 truncate" id="slot2Name">Ataque Especial</div>
+          <div class="text-[10px] text-slate-400 truncate" id="slot2Sub">Poder supremo</div>
+          <div class="text-[10px] font-orbitron font-bold text-purple-400" id="slot2Status">CD: 3t</div>
         </button>
       </div>
     </section>
 
-    <!-- TELA MINIGAMES -->
+    <!-- TELA 4: MINIGAMES PÓS-LUTA -->
     <section id="screenMinigame" class="hidden z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl flex flex-col items-center">
-      <div class="w-full flex justify-between items-center mb-4">
+      <div class="w-full flex justify-between items-center mb-3">
         <div>
-          <h2 id="mgTitle" class="font-orbitron font-bold text-lg md:text-xl text-amber-400">MINIGAME - ROBUSTUS</h2>
-          <p id="mgSubtitle" class="text-xs text-slate-400">Clique nos drones para destruí-los antes que eles te causem dano!</p>
+          <h2 id="mgTitle" class="font-orbitron font-bold text-lg md:text-xl text-amber-400">MINIGAME</h2>
+          <p id="mgSubtitle" class="text-xs text-slate-400">Complete o desafio!</p>
         </div>
         <div class="text-right font-orbitron">
-          <div class="text-xs text-slate-400">VIDA DO VILÃO</div>
-          <div id="mgBossHpTxt" class="text-lg font-bold text-red-500">100%</div>
+          <div class="text-[11px] text-slate-400">VIDA DO VILÃO</div>
+          <div id="mgBossHpTxt" class="text-xl font-black text-red-500">100%</div>
         </div>
       </div>
 
       <div class="relative w-full aspect-[16/9] max-h-[380px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center">
         <canvas id="mgCanvas" class="w-full h-full cursor-crosshair"></canvas>
-        <div id="mgOverlay" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4"></div>
-        <button id="btnWebFree" onclick="releaseWeb()" class="hidden absolute bottom-4 right-4 z-30 px-4 py-3 bg-slate-200 text-slate-900 font-black font-orbitron text-sm rounded-xl border-2 border-white shadow-xl hover:bg-white active:scale-95 flex items-center gap-2">
+
+        <!-- INTERFACE DO MINIGAME DA PENALTY (TURNOS E CARTÕES) -->
+        <div id="penaltyPanel" class="hidden absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-between p-4 z-20">
+          <div class="w-full flex justify-between items-center font-orbitron text-xs md:text-sm px-2">
+            <span id="penPlayerHpTxt" class="text-emerald-400 font-bold">SUA VIDA: 100%</span>
+            <span id="penClicksTxt" class="text-sky-400 font-bold">ATAQUES NO TURNO: 0 / 2</span>
+            <span id="penCardEffectTxt" class="text-amber-400 font-bold">CARTÃO ATIVO: NENHUM</span>
+          </div>
+
+          <div class="flex items-center gap-6 my-auto">
+            <!-- ALVO PENALTY -->
+            <button id="btnPenaltyHit" onclick="penaltyPlayerAttack()" class="group relative w-36 h-40 rounded-2xl bg-gradient-to-b from-emerald-950 to-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 flex flex-col items-center justify-center p-3 transition active:scale-95 shadow-lg">
+              <div class="text-5xl mb-2 group-hover:scale-110 transition">⚽</div>
+              <div class="font-orbitron font-bold text-xs text-emerald-300">ATACAR PENALTY</div>
+              <div class="text-[10px] text-slate-400 mt-1">Clique (2x por turno)</div>
+            </button>
+
+            <!-- CARTÃO DA PENALTY -->
+            <div id="penCardBox" class="w-36 h-40 rounded-2xl border-2 border-slate-700 bg-slate-900 flex flex-col items-center justify-center text-center p-3 shadow-xl transition-all">
+              <div id="penCardIcon" class="text-4xl mb-1.5">🎴</div>
+              <div id="penCardTitle" class="font-orbitron font-bold text-xs text-slate-300">SEM CARTÃO</div>
+              <div id="penCardDesc" class="text-[10px] text-slate-400 mt-1 leading-tight">A cada 2 cliques seus, Penalty usa um cartão!</div>
+            </div>
+          </div>
+
+          <div id="penLogTxt" class="text-xs font-mono text-slate-300 text-center">
+            Clique em "Atacar Penalty" duas vezes para concluir seu turno!
+          </div>
+        </div>
+
+        <!-- BOTÃO DE LIBERTAÇÃO DE TEIA (MINIGAME ANANSI) -->
+        <button id="btnWebFree" onclick="releaseAnansiWeb()" class="hidden absolute bottom-4 right-4 z-30 px-4 py-3 bg-slate-100 hover:bg-white text-slate-950 font-orbitron font-black text-xs md:text-sm rounded-xl border-2 border-white shadow-2xl active:scale-95 flex items-center gap-2">
           🕸️ LIBERTAR-SE DA TEIA!
         </button>
       </div>
 
-      <div id="mgControlsDesc" class="mt-4 text-xs font-mono text-slate-400 text-center">
-        Controles: Clique nos drones na tela para destruí-los.
+      <div id="mgControlsDesc" class="mt-3 text-xs font-mono text-slate-400 text-center">
+        Controles: Siga as instruções acima.
       </div>
     </section>
 
     <!-- MODAL DERROTA -->
     <div id="modalDefeat" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-red-600/50 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
-        <div class="text-5xl mb-4">💔</div>
+      <div class="bg-slate-900 border border-red-600/60 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
+        <div class="text-5xl mb-3">💔</div>
         <h3 class="text-2xl font-orbitron font-black text-red-500 mb-2">VOCÊ FOI DERROTADO!</h3>
-        <p class="text-slate-300 text-xs md:text-sm mb-6">Reinicie sua jornada escolhendo seu herói novamente!</p>
+        <p class="text-slate-300 text-xs md:text-sm mb-6">No Modo História, a derrota leva você de volta ao início para escolher seu personagem novamente.</p>
         <button onclick="goToMenu()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-orbitron font-bold rounded-xl transition shadow-lg shadow-red-600/40">
-          MENU PRINCIPAL
+          VOLTAR AO INÍCIO
         </button>
       </div>
     </div>
 
     <!-- MODAL VITÓRIA -->
     <div id="modalVictory" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-emerald-500/50 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
-        <div class="text-5xl mb-4">🏆</div>
-        <h3 class="text-2xl font-orbitron font-black text-emerald-400 mb-2">GRANDE VITÓRIA!</h3>
-        <p id="victoryTxt" class="text-slate-300 text-xs md:text-sm mb-6">Parabéns! Você concluiu todos os desafios!</p>
+      <div class="bg-slate-900 border border-emerald-500/60 p-6 md:p-8 rounded-2xl max-w-md w-full text-center shadow-2xl">
+        <div class="text-5xl mb-3">🏆</div>
+        <h3 class="text-2xl font-orbitron font-black text-emerald-400 mb-2">VITÓRIA ÉPICA!</h3>
+        <p id="victoryTxt" class="text-slate-300 text-xs md:text-sm mb-6">Parabéns! Você venceu todos os desafios e salvou Paris!</p>
         <button onclick="goToMenu()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-orbitron font-bold rounded-xl transition shadow-lg shadow-emerald-600/40">
           VOLTAR AO MENU
         </button>
       </div>
     </div>
-
   </main>
 
+  <footer class="w-full bg-slate-950 border-t border-slate-900 p-2 text-center text-[10px] text-slate-500 font-mono">
+    MSF - Miraculous Strong Fighter • RPG de Turnos & Minigames
+  </footer>
+
   <script>
+    /* =========================================================================
+       ARTE SVG EMBUTIDA PARA OS PERSONAGENS E VILÕES
+    ========================================================================= */
+    function getAvatarSVG(id) {
+      const arts = {
+        ladybug: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#991b1b"/><circle cx="32" cy="32" r="22" fill="#ef4444"/><circle cx="23" cy="24" r="3.5" fill="#0f172a"/><circle cx="41" cy="24" r="3.5" fill="#0f172a"/><circle cx="32" cy="33" r="3" fill="#0f172a"/><circle cx="22" cy="41" r="3.5" fill="#0f172a"/><circle cx="42" cy="41" r="3.5" fill="#0f172a"/><path d="M16 26 Q32 18 48 26" stroke="#0f172a" stroke-width="4" fill="none"/></svg>`,
+        catnoir: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#064e3b"/><polygon points="16,24 22,10 28,22" fill="#18181b"/><polygon points="48,24 42,10 36,22" fill="#18181b"/><circle cx="32" cy="34" r="20" fill="#18181b"/><ellipse cx="25" cy="32" rx="4" ry="2.5" fill="#22c55e"/><ellipse cx="39" cy="32" rx="4" ry="2.5" fill="#22c55e"/><circle cx="32" cy="48" r="5" fill="#eab308"/></svg>`,
+        pegasus: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#1e3a8a"/><circle cx="32" cy="32" r="22" fill="#3b82f6" opacity="0.35"/><circle cx="32" cy="32" r="16" stroke="#93c5fd" stroke-width="3" fill="none"/><rect x="18" y="27" width="12" height="7" rx="2" fill="#0f172a" stroke="#e2e8f0" stroke-width="1.5"/><rect x="34" y="27" width="12" height="7" rx="2" fill="#0f172a" stroke="#e2e8f0" stroke-width="1.5"/></svg>`,
+        renarouge: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#7c2d12"/><polygon points="15,26 20,9 29,22" fill="#f97316"/><polygon points="49,26 44,9 35,22" fill="#f97316"/><circle cx="32" cy="35" r="19" fill="#f97316"/><path d="M18 36 Q32 48 46 36 L32 52 Z" fill="#fff7ed"/><circle cx="25" cy="31" r="2.5" fill="#0f172a"/><circle cx="39" cy="31" r="2.5" fill="#0f172a"/></svg>`,
+        hawkmoth: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#3b0764"/><path d="M12 22 Q24 12 32 28 Q40 12 52 22 Q48 42 32 36 Q16 42 12 22 Z" fill="#a855f7"/><circle cx="32" cy="32" r="14" fill="#e2e8f0"/><path d="M22 28 L42 28 L38 35 L26 35 Z" fill="#581c87"/></svg>`,
+        vesperia: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#713f12"/><circle cx="32" cy="32" r="21" fill="#eab308"/><path d="M14 26 L50 26 M13 34 L51 34 M16 42 L48 42" stroke="#0f172a" stroke-width="4"/><polygon points="28,52 36,52 32,60" fill="#0f172a"/></svg>`,
+        robustus: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#1e293b"/><rect x="16" y="18" width="32" height="28" rx="6" fill="#64748b" stroke="#94a3b8" stroke-width="2"/><rect x="21" y="25" width="22" height="10" rx="3" fill="#0f172a"/><circle cx="27" cy="30" r="3" fill="#ef4444"/><circle cx="37" cy="30" r="3" fill="#ef4444"/></svg>`,
+        glaciator: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#0c4a6e"/><polygon points="22,34 42,34 32,56" fill="#d97706"/><circle cx="32" cy="27" r="13" fill="#f472b6"/><circle cx="27" cy="25" r="2" fill="#0f172a"/><circle cx="37" cy="25" r="2" fill="#0f172a"/></svg>`,
+        mayura: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#2e1065"/><path d="M12 44 Q32 10 52 44 Z" fill="#4c1d95"/><circle cx="32" cy="34" r="14" fill="#38bdf8"/><circle cx="27" cy="32" r="2.5" fill="#be123c"/><circle cx="37" cy="32" r="2.5" fill="#be123c"/></svg>`,
+        penalty: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#065f46"/><circle cx="32" cy="32" r="21" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/><polygon points="32,22 39,28 36,36 28,36 25,28" fill="#0f172a"/></svg>`,
+        anansi: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#450a0a"/><circle cx="32" cy="34" r="14" fill="#18181b"/><path d="M18 28 L8 18 M18 34 L6 34 M18 40 L8 50 M46 28 L56 18 M46 34 L58 34 M46 40 L56 50" stroke="#ef4444" stroke-width="3"/><circle cx="28" cy="31" r="2" fill="#ef4444"/><circle cx="36" cy="31" r="2" fill="#ef4444"/></svg>`,
+        befana: `<svg viewBox="0 0 64 64" class="w-full h-full"><rect width="64" height="64" fill="#451a03"/><polygon points="32,10 18,30 46,30" fill="#1e1b4b"/><circle cx="32" cy="38" r="13" fill="#fde68a"/><circle cx="28" cy="36" r="2" fill="#0f172a"/><circle cx="36" cy="36" r="2" fill="#0f172a"/></svg>`
+      };
+      return arts[id] || '';
+    }
+
+    /* =========================================================================
+       BANCO DE DADOS DOS 6 HERÓIS JOGÁVEIS (ATRIBUTOS BALANCEADOS)
+    ========================================================================= */
     const HEROES = {
       ladybug: {
-        id: 'ladybug', name: 'LadyBug', icon: '🐞', color: '#ef4444', hp: 110, maxHp: 110, def: 12, speed: 15, hitChance: 0.90, critChance: 0.15,
+        id: 'ladybug', name: 'LadyBug', rectColor: '#ef4444',
+        hp: 110, maxHp: 110, hitChance: 0.90, def: 12, speed: 16, critChance: 0.16,
         attacks: {
-          basic: { name: 'Arremesso de Yoyo', desc: 'Ataque padrão', cd: 0, power: 18 },
-          alt: { name: 'Miraculous Boost', desc: '+50% Dano por 3 turnos', cd: 2, type: 'buff' },
-          spec: { name: 'Prender com Yoyo', desc: 'Atordoa e golpeia', cd: 3, power: 25, stun: true }
+          basic: { name: 'Arremesso de Yoyo', desc: 'Ataque de média distância com seu ioiô mágico.', power: 18 },
+          alt: { name: 'Miraculous', desc: 'Fornece +50% de dano ao ioiô por 3 turnos.', type: 'ladybug_boost' },
+          spec: { name: 'Prender com Yoyo', desc: 'Prende o inimigo por 1 turno e desfere sequência de socos.', power: 24, stun: 1 }
         }
       },
       catnoir: {
-        id: 'catnoir', name: 'Cat Noir', icon: '🐈‍⬛', color: '#22c55e', hp: 100, maxHp: 100, def: 10, speed: 18, hitChance: 0.88, critChance: 0.25,
+        id: 'catnoir', name: 'Cat Noir', rectColor: '#22c55e',
+        hp: 105, maxHp: 105, hitChance: 0.88, def: 10, speed: 19, critChance: 0.24,
         attacks: {
-          basic: { name: 'Gavras Felinas', desc: 'Crítico elevado', cd: 0, power: 16 },
-          alt: { name: 'Golpe de Bastão', desc: 'Ataque médio', cd: 2, power: 22 },
-          spec: { name: 'Cataclismo', desc: '50% VIDA TOTAL do alvo', cd: 3, type: 'cataclysm' }
+          basic: { name: 'Garras Felinas', desc: 'Ataque ágil de curta distância com alta chance crítica.', power: 17 },
+          alt: { name: 'Bastão', desc: 'Golpe versátil de curta e média distância com o bastão.', power: 23 },
+          spec: { name: 'Cataclismo', desc: 'Arranca metade (50%) da barra total de vida do adversário.', type: 'cataclysm' }
         }
       },
       pegasus: {
-        id: 'pegasus', name: 'Pegasus', icon: '🐴', color: '#3b82f6', hp: 95, maxHp: 95, def: 8, speed: 22, hitChance: 0.92, critChance: 0.18,
+        id: 'pegasus', name: 'Pegasus', rectColor: '#3b82f6',
+        hp: 100, maxHp: 100, hitChance: 0.92, def: 9, speed: 21, critChance: 0.18,
         attacks: {
-          basic: { name: 'Soco Portal', desc: 'Longa distância', cd: 0, power: 17 },
-          alt: { name: 'Teleporte', desc: 'Ataque surpresa', cd: 2, power: 24 },
-          spec: { name: 'Multi-Portais', desc: '6 a 10 socos portais', cd: 3, type: 'multi' }
+          basic: { name: 'Soco Portal', desc: 'Ataque de longa distância atravessando portais.', power: 17 },
+          alt: { name: 'Teleporte', desc: 'Teleporta-se atrás do inimigo e atinge seu ponto cego.', power: 24 },
+          spec: { name: 'Multi-Portais', desc: 'Desfere entre 6 a 10 socos portais consecutivos (sorte).', type: 'multi_portal' }
         }
       },
       renarouge: {
-        id: 'renarouge', name: 'Rena Rouge', icon: '🦊', color: '#f97316', hp: 100, maxHp: 100, def: 9, speed: 17, hitChance: 0.88, critChance: 0.20,
+        id: 'renarouge', name: 'Rena Rouge', rectColor: '#f97316',
+        hp: 105, maxHp: 105, hitChance: 0.89, def: 10, speed: 18, critChance: 0.20,
         attacks: {
-          basic: { name: 'Soco Miragem', desc: 'Ataque ilusório', cd: 0, power: 17 },
-          alt: { name: 'Clone Falso', desc: 'Ganha esquiva', cd: 2, type: 'dodge' },
-          spec: { name: 'Exército de Clones', desc: 'Ataque conjunto', cd: 3, power: 34 }
+          basic: { name: 'Soco Miragem', desc: 'Cria uma miragem ao lado do oponente que desfere um soco.', power: 17 },
+          alt: { name: 'Clone Falso', desc: 'Cria miragem perfeita que confunde o inimigo e evita ataques.', type: 'mirage_clone' },
+          spec: { name: 'Exército de Clones', desc: 'Cria 3 clones ilusórios que atacam em conjunto.', power: 33, isIllusion: true }
         }
       },
       hawkmoth: {
-        id: 'hawkmoth', name: 'Hawk Moth', icon: '🦋', color: '#a855f7', hp: 115, maxHp: 115, def: 13, speed: 12, hitChance: 0.85, critChance: 0.12,
+        id: 'hawkmoth', name: 'Hawk Moth', rectColor: '#a855f7',
+        hp: 115, maxHp: 115, hitChance: 0.86, def: 13, speed: 13, critChance: 0.14,
         attacks: {
-          basic: { name: 'Golpe de Cajado', desc: 'Ataque de cajado', cd: 0, power: 19 },
-          alt: { name: 'Bola de Akuma', desc: 'Atordoa e reduz força', cd: 2, power: 15, stun: true, debuff: true },
-          spec: { name: 'Akumatizado', desc: 'Dobra o dano por 2 turnos', cd: 3, type: 'akuma' }
+          basic: { name: 'Golpe de Cajado', desc: 'Golpe preciso de média distância com seu cajado.', power: 19 },
+          alt: { name: 'Bola de Akuma', desc: 'Atordoa o adversário e reduz sua força em 20% por 2 turnos.', power: 14, stun: 1, weaken: 2 },
+          spec: { name: 'Akumatizado', desc: 'Invoca servo que dá dano imediato e dobra o dano por 2 turnos.', power: 16, type: 'akumatize', isSummon: true }
         }
       },
       vesperia: {
-        id: 'vesperia', name: 'Vesperia', icon: '🐝', color: '#eab308', hp: 105, maxHp: 105, def: 11, speed: 16, hitChance: 0.89, critChance: 0.15,
+        id: 'vesperia', name: 'Vesperia', rectColor: '#eab308',
+        hp: 110, maxHp: 110, hitChance: 0.90, def: 11, speed: 17, critChance: 0.17,
         attacks: {
-          basic: { name: 'Soco de Ferrão', desc: 'Soco direto', cd: 0, power: 18 },
-          alt: { name: 'Disparos de Mel', desc: 'Desacelera alvo', cd: 2, power: 16, slow: true },
-          spec: { name: 'Colmeia', desc: '20% a 33% do HP max', cd: 3, type: 'hive' }
+          basic: { name: 'Soco de Ferrão', desc: 'Soco potente de curta distância usando seu ferrão.', power: 18 },
+          alt: { name: 'Disparos de Mel', desc: 'Jato pegajoso que causa dano e desacelera o oponente.', power: 16, slow: true },
+          spec: { name: 'Colmeia', desc: 'Enxame causa dano variado entre 1/5 e 1/3 da vida total do alvo.', type: 'hive' }
         }
       }
     };
 
+    /* =========================================================================
+       BANCO DE DADOS DOS 6 VILÕES DO MODO HISTÓRIA (BALANCEADOS)
+    ========================================================================= */
     const VILLAINS = [
-      { id: 'robustus', name: 'Robustus', icon: '🤖', color: '#64748b', hp: 105, maxHp: 105, def: 10, speed: 10, hitChance: 0.82, critChance: 0.08, attacks: { basic: { name: 'Drones Disparadores', power: 13 }, alt: { name: 'Fios Elétricos', power: 17 }, spec: { name: 'Ondas Sonoras', power: 21 } }, mgType: 'robustus' },
-      { id: 'glaciator', name: 'Glaciator', icon: '🍦', color: '#38bdf8', hp: 115, maxHp: 115, def: 11, speed: 9, hitChance: 0.82, critChance: 0.10, attacks: { basic: { name: 'Mini Monstro', power: 14 }, alt: { name: 'Colher de Sorvete', power: 18 }, spec: { name: 'Punho de Sorvete', power: 22, stunChance: 0.20 } }, mgType: 'glaciator' },
-      { id: 'mayura', name: 'Mayura', icon: '🦚', color: '#6b21a8', hp: 110, maxHp: 110, def: 9, speed: 13, hitChance: 0.85, critChance: 0.12, attacks: { basic: { name: 'Rajada de Ventos', power: 15 }, alt: { name: 'Sentimonstro', power: 19 }, spec: { name: 'Transf. Sentimonstro', power: 23, stunChance: 0.30 } }, mgType: 'mayura' },
-      { id: 'penalty', name: 'Penalty', icon: '⚽', color: '#10b981', hp: 105, maxHp: 105, def: 8, speed: 15, hitChance: 0.82, critChance: 0.12, attacks: { basic: { name: 'Chute de Bola', randomDamage: [5, 20] }, alt: { name: 'Apito Atordoante', power: 12, stunChance: 0.35 }, spec: { name: 'Cartão Vermelho', hitChance: 0.75, curHpFraction: 0.25, stun: true } }, mgType: 'penalty' },
-      { id: 'anansi', name: 'Anansi', icon: '🕷️', color: '#b91c1c', hp: 115, maxHp: 115, def: 10, speed: 14, hitChance: 0.84, critChance: 0.14, attacks: { basic: { name: 'Mordida Venenosa', power: 13, poisonChance: 0.15 }, alt: { name: 'Disparo de Teias', power: 10, blockRandomAtk: true }, spec: { name: 'Sorte de Aranha', power: 18 } }, mgType: 'anansi' },
-      { id: 'befana', name: 'Befana', icon: '🧹', color: '#d97706', hp: 110, maxHp: 110, def: 10, speed: 12, hitChance: 0.83, critChance: 0.12, attacks: { basic: { name: 'Bengalas de Açúcar', power: 14 }, alt: { name: 'Tiro de Arma', power: 18, stunChance: 0.35 }, spec: { name: 'Bombas de Fumaça', power: 21, smokeTurns: 3 } }, mgType: 'befana' }
+      {
+        id: 'robustus', name: 'Robustus',
+        hp: 95, maxHp: 95, hitChance: 0.84, def: 9, speed: 11, critChance: 0.10,
+        attacks: {
+          basic: { name: 'Drones Disparadores', desc: 'Drones disparam munição teleguiada.', power: 12 },
+          alt: { name: 'Fios Elétricos', desc: 'Dispara cabos de alta tensão.', power: 16 },
+          spec: { name: 'Ondas Sonoras', desc: 'Explosão sônica com chance de atordoar.', power: 19, stunChance: 0.25 }
+        },
+        mgType: 'robustus'
+      },
+      {
+        id: 'glaciator', name: 'Glaciator',
+        hp: 105, maxHp: 105, hitChance: 0.84, def: 10, speed: 10, critChance: 0.12,
+        attacks: {
+          basic: { name: 'Mini Monstro', desc: 'Arremessa um mini monstro de sorvete.', power: 13 },
+          alt: { name: 'Colher de Sorveteiro', desc: 'Golpe pesado com sua colher gigante.', power: 17 },
+          spec: { name: 'Punho de Sorvete', desc: 'Soco congelante com 20% de chance de paralisar.', power: 20, stunChance: 0.20 }
+        },
+        mgType: 'glaciator'
+      },
+      {
+        id: 'mayura', name: 'Mayura',
+        hp: 100, maxHp: 100, hitChance: 0.87, def: 9, speed: 14, critChance: 0.14,
+        attacks: {
+          basic: { name: 'Rajada de Ventos', desc: 'Cria rajada cortante com seu leque.', power: 14 },
+          alt: { name: 'Sentimonstro', desc: 'Invoca um sentimonstro para atacar.', power: 18 },
+          spec: { name: 'Transformar Sentimonstro', desc: 'Tenta transformar o alvo (30% chance de atordoar).', power: 20, stunChance: 0.30 }
+        },
+        mgType: 'mayura'
+      },
+      {
+        id: 'penalty', name: 'Penalty',
+        hp: 95, maxHp: 95, hitChance: 0.85, def: 8, speed: 15, critChance: 0.14,
+        attacks: {
+          basic: { name: 'Chute de Bola', desc: 'Chuta bola com força variável (5 a 25 de dano).', randomDmg: [5, 25] },
+          alt: { name: 'Apito Estridente', desc: 'Som agudo com 35% de chance de atordoar.', power: 12, stunChance: 0.35 },
+          spec: { name: 'Cartão Vermelho', desc: '75% de acerto: tira 1/4 da vida atual e atordoa.', hitOverride: 0.75, quarterCurHp: true, stun: 1 }
+        },
+        mgType: 'penalty'
+      },
+      {
+        id: 'anansi', name: 'Anansi',
+        hp: 110, maxHp: 110, hitChance: 0.86, def: 10, speed: 15, critChance: 0.15,
+        attacks: {
+          basic: { name: 'Mordida Venenosa', desc: '15% de chance de envenenar (10 dano por 2 turnos).', power: 13, poisonChance: 0.15 },
+          alt: { name: 'Disparo de Teias', desc: 'Bloqueia 1 ataque aleatório do jogador.', power: 11, blockRandom: true },
+          spec: { name: 'Sorte de Aranha', desc: 'Perde 1 golpe por 9 turnos, mas ganha precisão e veneno.', type: 'spider_luck' }
+        },
+        mgType: 'anansi'
+      },
+      {
+        id: 'befana', name: 'Befana',
+        hp: 105, maxHp: 105, hitChance: 0.86, def: 10, speed: 13, critChance: 0.14,
+        attacks: {
+          basic: { name: 'Bengalas de Açúcar', desc: 'Prende o herói no chão, bloqueando ilusões/invocações.', power: 13, rootFloor: 2 },
+          alt: { name: 'Tiro de Arma', desc: 'Disparo mágico com 35% de chance de atordoar.', power: 16, stunChance: 0.35 },
+          spec: { name: 'Bombas de Fumaça', desc: 'Causa dano e oculta/embaralha os ataques por 3 turnos.', power: 18, smokeTurns: 3 }
+        },
+        mgType: 'befana'
+      }
     ];
 
-    let gameState = { mode: 'story', storyStage: 0, turn: 'p1', p1: null, p2: null, p1CdAlt: 2, p1CdSpec: 3, p2CdAlt: 2, p2CdSpec: 3, minigameActive: false, mgBossHp: 100 };
+    /* =========================================================================
+       ESTADO GLOBAL DO JOGO
+    ========================================================================= */
+    let gameState = {
+      mode: 'story',
+      storyStage: 0,
+      turn: 'p1',
+      p1: null,
+      p2: null,
+      slotOrder: [0, 1, 2], // Usado para embaralhar botões na fumaça da Befana
+      minigameActive: false,
+      mgBossHp: 100
+    };
+
+    function createFighterState(template) {
+      return {
+        ...JSON.parse(JSON.stringify(template)),
+        cdAlt: 2, // Começa com 2 turnos de espera
+        cdSpec: 3, // Começa com 3 turnos de espera
+        buffBoostTurns: 0,
+        akumaDoubleTurns: 0,
+        mirageDodgeCharges: 0,
+        stunTurns: 0,
+        weakenTurns: 0,
+        poisonTurns: 0,
+        rootTurns: 0,
+        smokeTurns: 0,
+        blockedSkill: null,
+        blockedSkillTurns: 0,
+        spiderLuckTurns: 0
+      };
+    }
 
     function logMsg(msg, colorClass = 'text-slate-300') {
       const box = document.getElementById('combatLog');
@@ -313,47 +489,57 @@
     }
 
     function goToMenu() {
-      document.getElementById('screenMenu').classList.remove('hidden');
-      document.getElementById('screenSelectChar').classList.add('hidden');
-      document.getElementById('screenCombat').classList.add('hidden');
-      document.getElementById('screenMinigame').classList.add('hidden');
-      document.getElementById('modalDefeat').classList.add('hidden');
-      document.getElementById('modalVictory').classList.add('hidden');
-      document.getElementById('gameModeBadge').classList.add('hidden');
       stopMinigameLoop();
+      ['screenSelectChar', 'screenCombat', 'screenMinigame', 'modalDefeat', 'modalVictory', 'gameModeBadge', 'btnHeaderMenu']
+        .forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('screenMenu').classList.remove('hidden');
+      pvpFirstChoice = null;
     }
 
+    let pvpFirstChoice = null;
     function selectMode(mode) {
       gameState.mode = mode;
       gameState.storyStage = 0;
+      pvpFirstChoice = null;
       document.getElementById('gameModeBadge').classList.remove('hidden');
+      document.getElementById('btnHeaderMenu').classList.remove('hidden');
+      document.getElementById('gameModeBadge').innerText = mode === 'story' ? 'MODO HISTÓRIA' : 'MODO PVP X1';
       document.getElementById('screenMenu').classList.add('hidden');
       document.getElementById('screenSelectChar').classList.remove('hidden');
+      document.getElementById('selectTitle').innerText = mode === 'story' ? 'ESCOLHA SEU HERÓI' : 'JOGADOR 1: ESCOLHA SEU HERÓI';
+
       const grid = document.getElementById('charGrid');
       grid.innerHTML = '';
       Object.values(HEROES).forEach(hero => {
-        const btn = document.createElement('button');
-        btn.className = 'bg-slate-950 border border-slate-800 hover:border-red-500 rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition hover:scale-105 group';
-        btn.onclick = () => handleCharSelect(hero.id);
-        btn.innerHTML = `<div class="text-4xl">${hero.icon}</div><div class="font-orbitron font-bold text-sm text-slate-200">${hero.name}</div><div class="text-[10px] text-slate-400">HP: ${hero.hp}</div>`;
-        grid.appendChild(btn);
+        const card = document.createElement('button');
+        card.className = 'bg-slate-950/90 border border-slate-800 hover:border-red-500 rounded-xl p-4 flex items-center gap-4 text-left transition hover:scale-[1.02] group';
+        card.onclick = () => handleHeroPick(hero.id);
+        card.innerHTML = `
+          <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-700 shrink-0">${getAvatarSVG(hero.id)}</div>
+          <div class="overflow-hidden">
+            <div class="font-orbitron font-bold text-base text-white group-hover:text-red-400">${hero.name}</div>
+            <div class="text-[11px] font-mono text-slate-400 mt-0.5">HP: ${hero.hp} | DEF: ${hero.def} | VEL: ${hero.speed}</div>
+            <div class="text-[11px] font-mono text-amber-400">ACER: ${Math.round(hero.hitChance * 100)}% | CRIT: ${Math.round(hero.critChance * 100)}%</div>
+            <div class="text-[10px] text-slate-500 truncate mt-1">Esp: ${hero.attacks.spec.name}</div>
+          </div>
+        `;
+        grid.appendChild(card);
       });
     }
 
-    let pvpSelectedP1 = null;
-    function handleCharSelect(heroId) {
+    function handleHeroPick(heroId) {
       if (gameState.mode === 'story') {
-        gameState.p1 = JSON.parse(JSON.stringify(HEROES[heroId]));
-        gameState.p2 = JSON.parse(JSON.stringify(VILLAINS[0]));
+        gameState.p1 = createFighterState(HEROES[heroId]);
+        gameState.p2 = createFighterState(VILLAINS[0]);
         startCombat();
       } else {
-        if (!pvpSelectedP1) {
-          pvpSelectedP1 = heroId;
+        if (!pvpFirstChoice) {
+          pvpFirstChoice = heroId;
           document.getElementById('selectTitle').innerText = 'JOGADOR 2: ESCOLHA SEU HERÓI';
         } else {
-          gameState.p1 = JSON.parse(JSON.stringify(HEROES[pvpSelectedP1]));
-          gameState.p2 = JSON.parse(JSON.stringify(HEROES[heroId]));
-          pvpSelectedP1 = null;
+          gameState.p1 = createFighterState(HEROES[pvpFirstChoice]);
+          gameState.p2 = createFighterState(HEROES[heroId]);
+          pvpFirstChoice = null;
           startCombat();
         }
       }
@@ -362,217 +548,467 @@
     function startCombat() {
       document.getElementById('screenSelectChar').classList.add('hidden');
       document.getElementById('screenCombat').classList.remove('hidden');
-      gameState.p1CdAlt = 2; gameState.p1CdSpec = 3; gameState.p2CdAlt = 2; gameState.p2CdSpec = 3;
+      gameState.slotOrder = [0, 1, 2];
+
+      // Decisão de iniciativa pela Velocidade
       gameState.turn = gameState.p1.speed >= gameState.p2.speed ? 'p1' : 'p2';
-      document.getElementById('combatLog').innerHTML = `<div>> Luta iniciada contra ${gameState.p2.name}!</div>`;
+      document.getElementById('combatLog').innerHTML = `<div>> Batalha iniciada: ${gameState.p1.name} vs ${gameState.p2.name}!</div>`;
+      logMsg(`${gameState.turn === 'p1' ? gameState.p1.name : gameState.p2.name} tem maior velocidade e começa atacando!`, 'text-sky-400');
+
       updateCombatUI();
-      if (gameState.turn === 'p2' && gameState.mode === 'story') setTimeout(processAiTurn, 1000);
+      if (gameState.turn === 'p2' && gameState.mode === 'story') {
+        setTimeout(processAiTurn, 950);
+      }
+    }
+
+    function buildStatusLine(f) {
+      let tags = [];
+      if (f.buffBoostTurns > 0) tags.push(`🔥Boost(${f.buffBoostTurns}t)`);
+      if (f.akumaDoubleTurns > 0) tags.push(`🦋2xDano(${f.akumaDoubleTurns}t)`);
+      if (f.mirageDodgeCharges > 0) tags.push(`🦊Miragem`);
+      if (f.stunTurns > 0) tags.push(`💫Atordoado`);
+      if (f.weakenTurns > 0) tags.push(`⬇️-20%Força(${f.weakenTurns}t)`);
+      if (f.poisonTurns > 0) tags.push(`☠️Veneno(${f.poisonTurns}t)`);
+      if (f.rootTurns > 0) tags.push(`🍭Preso(${f.rootTurns}t)`);
+      if (f.smokeTurns > 0) tags.push(`💨Fumaça(${f.smokeTurns}t)`);
+      return tags.join(' ');
     }
 
     function updateCombatUI() {
-      document.getElementById('p1Avatar').innerText = gameState.p1.icon;
-      document.getElementById('p1Name').innerText = gameState.p1.name;
-      document.getElementById('p1HpBar').style.width = Math.max(0, (gameState.p1.hp / gameState.p1.maxHp) * 100) + '%';
-      document.getElementById('p1HpTxt').innerText = `${Math.ceil(gameState.p1.hp)} / ${gameState.p1.maxHp}`;
+      const p1 = gameState.p1;
+      const p2 = gameState.p2;
 
-      document.getElementById('p2Avatar').innerText = gameState.p2.icon;
-      document.getElementById('p2Name').innerText = gameState.p2.name;
-      document.getElementById('p2HpBar').style.width = Math.max(0, (gameState.p2.hp / gameState.p2.maxHp) * 100) + '%';
-      document.getElementById('p2HpTxt').innerText = `${Math.ceil(gameState.p2.hp)} / ${gameState.p2.maxHp}`;
+      document.getElementById('p1Portrait').innerHTML = getAvatarSVG(p1.id);
+      document.getElementById('p1Name').innerText = p1.name;
+      document.getElementById('p1StatsMini').innerText = `DEF: ${p1.def} | VEL: ${p1.speed} | CRIT: ${Math.round(p1.critChance * 100)}%`;
+      document.getElementById('p1StatusTags').innerText = buildStatusLine(p1);
+      document.getElementById('p1HpBar').style.width = `${Math.max(0, (p1.hp / p1.maxHp) * 100)}%`;
+      document.getElementById('p1HpTxt').innerText = `${Math.ceil(p1.hp)} / ${p1.maxHp}`;
 
-      document.getElementById('turnBanner').innerText = gameState.turn === 'p1' ? `TURNO DE: ${gameState.p1.name}` : `TURNO DE: ${gameState.p2.name}`;
+      document.getElementById('p2Portrait').innerHTML = getAvatarSVG(p2.id);
+      document.getElementById('p2Name').innerText = p2.name;
+      document.getElementById('p2RoleBadge').innerText = gameState.mode === 'story' ? `FASE ${gameState.storyStage + 1}/6` : 'P2';
+      document.getElementById('p2StatsMini').innerText = `DEF: ${p2.def} | VEL: ${p2.speed} | CRIT: ${Math.round(p2.critChance * 100)}%`;
+      document.getElementById('p2StatusTags').innerText = buildStatusLine(p2);
+      document.getElementById('p2HpBar').style.width = `${Math.max(0, (p2.hp / p2.maxHp) * 100)}%`;
+      document.getElementById('p2HpTxt').innerText = `${Math.ceil(p2.hp)} / ${p2.maxHp}`;
+
+      const active = gameState.turn === 'p1' ? p1 : p2;
       const isAiTurn = (gameState.mode === 'story' && gameState.turn === 'p2');
+      document.getElementById('turnBanner').innerText = `TURNO DE: ${active.name.toUpperCase()}`;
 
-      const btnBasic = document.getElementById('btnAtkBasic');
-      const btnAlt = document.getElementById('btnAtkAlt');
-      const btnSpec = document.getElementById('btnAtkSpec');
+      const skillKeys = ['basic', 'alt', 'spec'];
+      const isSmoked = active.smokeTurns > 0;
 
-      const activeChar = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
-      const cdAlt = gameState.turn === 'p1' ? gameState.p1CdAlt : gameState.p2CdAlt;
-      const cdSpec = gameState.turn === 'p1' ? gameState.p1CdSpec : gameState.p2CdSpec;
-
-      document.getElementById('nameAtkBasic').innerText = activeChar.attacks.basic.name;
-      document.getElementById('nameAtkAlt').innerText = activeChar.attacks.alt.name;
-      document.getElementById('cdAtkAlt').innerText = cdAlt > 0 ? `CD: ${cdAlt}t` : "PRONTO";
-      document.getElementById('nameAtkSpec').innerText = activeChar.attacks.spec.name;
-      document.getElementById('cdAtkSpec').innerText = cdSpec > 0 ? `CD: ${cdSpec}t` : "PRONTO";
-
-      if (isAiTurn) {
-        btnBasic.disabled = true; btnAlt.disabled = true; btnSpec.disabled = true;
-        document.getElementById('turnStatusBadge').innerText = "VILÃO PENSANDO...";
+      // Se estiver sob efeito de fumaça da Befana, embaralha visualmente os botões e esconde nomes
+      if (isSmoked && !isAiTurn) {
+        gameState.slotOrder = [0, 1, 2].sort(() => Math.random() - 0.5);
       } else {
-        document.getElementById('turnStatusBadge').innerText = "SUA VEZ DE ATACAR";
-        btnBasic.disabled = false;
-        btnAlt.disabled = cdAlt > 0;
-        btnSpec.disabled = cdSpec > 0;
+        gameState.slotOrder = [0, 1, 2];
       }
+
+      for (let slot = 0; slot < 3; slot++) {
+        const realIdx = gameState.slotOrder[slot];
+        const key = skillKeys[realIdx];
+        const skill = active.attacks[key];
+        const btn = document.getElementById(`btnSlot${slot}`);
+        const nameEl = document.getElementById(`slot${slot}Name`);
+        const subEl = document.getElementById(`slot${slot}Sub`);
+        const statEl = document.getElementById(`slot${slot}Status`);
+
+        let cd = key === 'alt' ? active.cdAlt : (key === 'spec' ? active.cdSpec : 0);
+        let isBlocked = (active.blockedSkill === key && active.blockedSkillTurns > 0);
+        let isRootBlocked = (active.rootTurns > 0 && (skill.isIllusion || skill.isSummon || skill.type === 'mirage_clone'));
+
+        if (isSmoked && !isAiTurn) {
+          nameEl.innerText = '??? (FUMAÇA)';
+          subEl.innerText = 'Visão bloqueada pela fumaça!';
+        } else {
+          nameEl.innerText = skill.name;
+          subEl.innerText = skill.desc;
+        }
+
+        if (isAiTurn) {
+          btn.disabled = true;
+          statEl.innerText = 'AGUARDE';
+        } else if (isBlocked) {
+          btn.disabled = true;
+          statEl.innerText = `BLOQUEADO (${active.blockedSkillTurns}t)`;
+        } else if (isRootBlocked) {
+          btn.disabled = true;
+          statEl.innerText = 'PRESO NO CHÃO';
+        } else if (cd > 0) {
+          btn.disabled = true;
+          statEl.innerText = `RECARGA: ${cd}t`;
+        } else {
+          btn.disabled = false;
+          statEl.innerText = 'PRONTO';
+        }
+      }
+
+      document.getElementById('turnStatusBadge').innerText = isAiTurn ? 'TURNO DO VILÃO' : 'SUA VEZ';
     }
 
-    function handlePlayerAction(type) {
+    function previewSlot(slot) {
+      const active = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
+      if (active.smokeTurns > 0) {
+        document.getElementById('skillDescTxt').innerText = '💨 A fumaça da Befana esconde seus golpes por enquanto!';
+        return;
+      }
+      const key = ['basic', 'alt', 'spec'][gameState.slotOrder[slot]];
+      document.getElementById('skillDescTxt').innerText = `${active.attacks[key].name}: ${active.attacks[key].desc}`;
+    }
+
+    function handleSlotClick(slot) {
       if (gameState.mode === 'story' && gameState.turn === 'p2') return;
-      executeAttack(type, gameState.turn === 'p1' ? gameState.p1 : gameState.p2, gameState.turn === 'p1' ? gameState.p2 : gameState.p1);
+      const key = ['basic', 'alt', 'spec'][gameState.slotOrder[slot]];
+      executeTurnAction(key);
     }
 
-    function executeAttack(type, attacker, defender) {
-      if (type === 'alt') { if (gameState.turn === 'p1') gameState.p1CdAlt = 3; else gameState.p2CdAlt = 3; }
-      else if (type === 'spec') { if (gameState.turn === 'p1') gameState.p1CdSpec = 4; else gameState.p2CdSpec = 4; }
+    function executeTurnAction(skillKey) {
+      const attacker = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
+      const defender = gameState.turn === 'p1' ? gameState.p2 : gameState.p1;
+      const skill = attacker.attacks[skillKey];
 
-      const atkInfo = attacker.attacks[type];
-      logMsg(`${attacker.name} usou ${atkInfo.name}!`, 'text-amber-400');
+      // Define recarga
+      if (skillKey === 'alt') attacker.cdAlt = 3;
+      if (skillKey === 'spec') attacker.cdSpec = 4;
 
-      let baseDmg = atkInfo.power || 15;
-      if (atkInfo.type === 'cataclysm') baseDmg = defender.maxHp * 0.5;
-      else if (atkInfo.type === 'buff') baseDmg = 0;
+      logMsg(`${attacker.name} usou ${skill.name}!`, 'text-amber-400');
 
-      let finalDmg = Math.max(2, baseDmg - (defender.def * 0.3));
-      if (baseDmg === 0) finalDmg = 0;
+      // Verifica Clone Falso da Rena Rouge (esquiva)
+      if (defender.mirageDodgeCharges > 0 && skill.type !== 'ladybug_boost' && skill.type !== 'mirage_clone') {
+        defender.mirageDodgeCharges--;
+        logMsg(`${attacker.name} atacou o Clone Falso de ${defender.name} e errou!`, 'text-orange-400');
+        endCurrentTurn();
+        return;
+      }
+
+      // Verifica chance de acerto
+      let hitChance = skill.hitOverride || attacker.hitChance;
+      if (attacker.spiderLuckTurns > 0) hitChance = Math.min(0.99, hitChance + 0.12);
+
+      if (Math.random() > hitChance && skill.type !== 'ladybug_boost' && skill.type !== 'mirage_clone' && skill.type !== 'spider_luck') {
+        logMsg(`${attacker.name} errou o ataque!`, 'text-slate-400');
+        endCurrentTurn();
+        return;
+      }
+
+      // Mecânicas especiais sem dano direto
+      if (skill.type === 'ladybug_boost') {
+        attacker.buffBoostTurns = 3;
+        logMsg(`Miraculous ativado! +50% de dano nos ataques por 3 turnos!`, 'text-emerald-400');
+        endCurrentTurn();
+        return;
+      }
+
+      if (skill.type === 'mirage_clone') {
+        attacker.mirageDodgeCharges = 1;
+        logMsg(`${attacker.name} criou um Clone Falso para confundir o adversário!`, 'text-orange-400');
+        endCurrentTurn();
+        return;
+      }
+
+      if (skill.type === 'spider_luck') {
+        const pool = ['alt', 'spec'];
+        attacker.blockedSkill = pool[Math.floor(Math.random() * pool.length)];
+        attacker.blockedSkillTurns = 9;
+        attacker.spiderLuckTurns = 9;
+        logMsg(`Anansi sacrificou 1 ataque por 9 turnos para ganhar precisão e veneno!`, 'text-purple-400');
+        endCurrentTurn();
+        return;
+      }
+
+      // Cálculo de Dano
+      let rawDmg = 0;
+      if (skill.type === 'cataclysm') {
+        rawDmg = Math.round(defender.maxHp * 0.50);
+        logMsg(`CATACLISMO! Arrancou metade da barra total de vida!`, 'text-emerald-400 font-bold');
+      } else if (skill.type === 'multi_portal') {
+        const hits = Math.floor(Math.random() * 5) + 6; // 6 a 10 socos
+        rawDmg = hits * 4.5;
+        logMsg(`Multi-Portais desferiu ${hits} socos através dos portais!`, 'text-sky-400');
+      } else if (skill.type === 'hive') {
+        const frac = (Math.random() * (1/3 - 1/5)) + (1/5);
+        rawDmg = Math.round(defender.maxHp * frac);
+        logMsg(`Enxame da Colmeia atingiu ${defender.name}!`, 'text-yellow-400');
+      } else if (skill.randomDmg) {
+        rawDmg = Math.floor(Math.random() * (skill.randomDmg[1] - skill.randomDmg[0] + 1)) + skill.randomDmg[0];
+      } else if (skill.quarterCurHp) {
+        rawDmg = Math.max(5, Math.round(defender.hp * 0.25));
+      } else {
+        rawDmg = skill.power || 15;
+      }
+
+      // Modificadores de Buff/Debuff
+      if (attacker.buffBoostTurns > 0 && skill.type !== 'cataclysm') rawDmg *= 1.5;
+      if (attacker.akumaDoubleTurns > 0 && skill.type !== 'cataclysm') rawDmg *= 2.0;
+      if (attacker.weakenTurns > 0) rawDmg *= 0.8;
+
+      // Crítico
+      let isCrit = false;
+      if (skill.type !== 'cataclysm' && skill.type !== 'hive' && Math.random() < attacker.critChance) {
+        isCrit = true;
+        rawDmg *= 1.5;
+      }
+
+      // Subtrai parcela da defesa (exceto Cataclismo/Colmeia que são baseados em % de HP)
+      let finalDmg = (skill.type === 'cataclysm' || skill.type === 'hive')
+        ? Math.round(rawDmg)
+        : Math.max(3, Math.round(rawDmg - defender.def * 0.35));
 
       defender.hp = Math.max(0, defender.hp - finalDmg);
-      if (finalDmg > 0) logMsg(`Causou ${Math.ceil(finalDmg)} de dano!`, 'text-red-300');
+      logMsg(`Causou ${finalDmg} de dano${isCrit ? ' (CRÍTICO!)' : ''}!`, isCrit ? 'text-yellow-300 font-bold' : 'text-red-300');
 
-      if (defender.hp <= 0) { handleCombatEnd(); return; }
-      finishTurn();
+      const arena = document.getElementById('arenaBox');
+      arena.classList.remove('animate-shake');
+      void arena.offsetWidth;
+      arena.classList.add('animate-shake');
+
+      // Aplicação de Efeitos Secundários
+      if (skill.type === 'akumatize') {
+        attacker.akumaDoubleTurns = 2;
+        logMsg(`Servo Akumatizado lutará ao lado de Hawk Moth dobrando o dano por 2 turnos!`, 'text-purple-400');
+      }
+      if (skill.stun) {
+        defender.stunTurns = skill.stun;
+        logMsg(`${defender.name} ficou atordoado!`, 'text-amber-300');
+      }
+      if (skill.stunChance && Math.random() < skill.stunChance) {
+        defender.stunTurns = 1;
+        logMsg(`${defender.name} foi paralisado/atordoado!`, 'text-amber-300');
+      }
+      if (skill.weaken) {
+        defender.weakenTurns = skill.weaken;
+        logMsg(`Força de ${defender.name} reduzida em 20% por ${skill.weaken} turnos!`, 'text-purple-300');
+      }
+      if (skill.slow) {
+        defender.speed = Math.max(1, defender.speed - 3);
+        logMsg(`Mel pegajoso desacelerou ${defender.name}!`, 'text-yellow-300');
+      }
+      if (skill.poisonChance) {
+        const pChance = attacker.spiderLuckTurns > 0 ? 0.55 : skill.poisonChance;
+        if (Math.random() < pChance) {
+          defender.poisonTurns = 2;
+          logMsg(`${defender.name} foi envenenado! (10 de dano por 2 turnos)`, 'text-emerald-400');
+        }
+      }
+      if (skill.blockRandom) {
+        const choices = ['basic', 'alt', 'spec'];
+        const chosenBlock = choices[Math.floor(Math.random() * choices.length)];
+        defender.blockedSkill = chosenBlock;
+        defender.blockedSkillTurns = 1;
+        logMsg(`Teias de Anansi bloquearam o golpe "${defender.attacks[chosenBlock].name}"!`, 'text-red-400');
+      }
+      if (skill.rootFloor) {
+        defender.rootTurns = skill.rootFloor;
+        logMsg(`Bengalas de açúcar prenderam ${defender.name} no chão!`, 'text-amber-300');
+      }
+      if (skill.smokeTurns) {
+        defender.smokeTurns = skill.smokeTurns;
+        logMsg(`Fumaça densa da Befana embaralhou os ataques de ${defender.name} por 3 turnos!`, 'text-slate-300');
+      }
+
+      if (defender.hp <= 0) {
+        handleBattleFinished();
+        return;
+      }
+
+      endCurrentTurn();
     }
 
-    function finishTurn() {
-      if (gameState.turn === 'p1') {
-        if (gameState.p1CdAlt > 0) gameState.p1CdAlt--;
-        if (gameState.p1CdSpec > 0) gameState.p1CdSpec--;
-      } else {
-        if (gameState.p2CdAlt > 0) gameState.p2CdAlt--;
-        if (gameState.p2CdSpec > 0) gameState.p2CdSpec--;
+    function endCurrentTurn() {
+      const current = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
+
+      // Reduz contadores do lutador que acabou de agir
+      if (current.cdAlt > 0) current.cdAlt--;
+      if (current.cdSpec > 0) current.cdSpec--;
+      if (current.buffBoostTurns > 0) current.buffBoostTurns--;
+      if (current.akumaDoubleTurns > 0) current.akumaDoubleTurns--;
+      if (current.weakenTurns > 0) current.weakenTurns--;
+      if (current.rootTurns > 0) current.rootTurns--;
+      if (current.smokeTurns > 0) current.smokeTurns--;
+      if (current.spiderLuckTurns > 0) current.spiderLuckTurns--;
+      if (current.blockedSkillTurns > 0) {
+        current.blockedSkillTurns--;
+        if (current.blockedSkillTurns === 0) current.blockedSkill = null;
       }
+
+      // Passa o turno
       gameState.turn = gameState.turn === 'p1' ? 'p2' : 'p1';
+      const next = gameState.turn === 'p1' ? gameState.p1 : gameState.p2;
+
+      // Processa dano de veneno no início do turno
+      if (next.poisonTurns > 0) {
+        next.poisonTurns--;
+        next.hp = Math.max(0, next.hp - 10);
+        logMsg(`Veneno causou 10 de dano em ${next.name}!`, 'text-emerald-400');
+        if (next.hp <= 0) {
+          handleBattleFinished();
+          return;
+        }
+      }
+
       updateCombatUI();
-      if (gameState.turn === 'p2' && gameState.mode === 'story') setTimeout(processAiTurn, 800);
+
+      // Verifica se o próximo lutador está atordoado ou com o único ataque disponível bloqueado por teia
+      if (next.stunTurns > 0) {
+        next.stunTurns--;
+        logMsg(`${next.name} está atordoado e perdeu a vez!`, 'text-amber-400');
+        setTimeout(endCurrentTurn, 900);
+        return;
+      }
+
+      if (next.blockedSkill === 'basic' && next.blockedSkillTurns > 0 && next.cdAlt > 0 && next.cdSpec > 0) {
+        logMsg(`Ataque básico de ${next.name} está bloqueado por teias e os demais em recarga — turno pulado!`, 'text-red-400');
+        setTimeout(endCurrentTurn, 950);
+        return;
+      }
+
+      if (gameState.turn === 'p2' && gameState.mode === 'story') {
+        setTimeout(processAiTurn, 900);
+      }
     }
 
     function processAiTurn() {
       if (gameState.p2.hp <= 0 || gameState.p1.hp <= 0) return;
-      let available = ['basic'];
-      if (gameState.p2CdAlt === 0) available.push('alt');
-      if (gameState.p2CdSpec === 0) available.push('spec');
-      executeAttack(available[Math.floor(Math.random() * available.length)], gameState.p2, gameState.p1);
+      const ai = gameState.p2;
+      let options = ['basic'];
+      if (ai.cdAlt === 0 && ai.blockedSkill !== 'alt') options.push('alt');
+      if (ai.cdSpec === 0 && ai.blockedSkill !== 'spec') options.push('spec');
+      if (ai.blockedSkill === 'basic') options = options.filter(k => k !== 'basic');
+
+      if (options.length === 0) {
+        endCurrentTurn();
+        return;
+      }
+      const chosen = options[Math.floor(Math.random() * options.length)];
+      executeTurnAction(chosen);
     }
 
-    function handleCombatEnd() {
+    function handleBattleFinished() {
+      updateCombatUI();
       if (gameState.p1.hp > 0) {
-        logMsg(`VITÓRIA!`, 'text-emerald-400 font-bold');
+        logMsg(`VITÓRIA DE ${gameState.p1.name.toUpperCase()}!`, 'text-emerald-400 font-bold');
         if (gameState.mode === 'story') {
           setTimeout(() => {
             document.getElementById('screenCombat').classList.add('hidden');
             startMinigame(VILLAINS[gameState.storyStage].mgType);
           }, 1000);
         } else {
+          document.getElementById('victoryTxt').innerText = `${gameState.p1.name} venceu o duelo PvP x1!`;
           document.getElementById('modalVictory').classList.remove('hidden');
         }
       } else {
-        document.getElementById('modalDefeat').classList.remove('hidden');
+        if (gameState.mode === 'pvp') {
+          document.getElementById('victoryTxt').innerText = `${gameState.p2.name} venceu o duelo PvP x1!`;
+          document.getElementById('modalVictory').classList.remove('hidden');
+        } else {
+          document.getElementById('modalDefeat').classList.remove('hidden');
+        }
       }
     }
 
+    /* =========================================================================
+       SISTEMA DOS 6 MINIGAMES ESPECÍFICOS DO MODO HISTÓRIA
+    ========================================================================= */
     let mgLoopId = null;
     let mgState = {};
+    let mgKeyHandler = null;
 
     function startMinigame(type) {
+      stopMinigameLoop();
       document.getElementById('screenMinigame').classList.remove('hidden');
+      document.getElementById('penaltyPanel').classList.add('hidden');
+      document.getElementById('btnWebFree').classList.add('hidden');
+
       gameState.minigameActive = true;
       gameState.mgBossHp = 100;
       document.getElementById('mgBossHpTxt').innerText = '100%';
+
       const canvas = document.getElementById('mgCanvas');
-      canvas.width = 640; canvas.height = 360;
+      canvas.onclick = null;
+      canvas.width = 640;
+      canvas.height = 360;
+
       if (type === 'robustus') initRobustusMg();
-      else advanceStoryStage();
+      else if (type === 'glaciator') initGlaciatorMg();
+      else if (type === 'mayura') initMayuraMg();
+      else if (type === 'penalty') initPenaltyMg();
+      else if (type === 'anansi') initAnansiMg();
+      else if (type === 'befana') initBefanaMg();
     }
 
     function stopMinigameLoop() {
       gameState.minigameActive = false;
-      if (mgLoopId) cancelAnimationFrame(mgLoopId);
+      if (mgLoopId) { cancelAnimationFrame(mgLoopId); mgLoopId = null; }
+      if (mgKeyHandler) { window.removeEventListener('keydown', mgKeyHandler); mgKeyHandler = null; }
     }
 
-    /* MINIGAME ROBUSTUS CORRIGIDO */
+    function triggerStoryDefeat() {
+      stopMinigameLoop();
+      document.getElementById('screenMinigame').classList.add('hidden');
+      document.getElementById('modalDefeat').classList.remove('hidden');
+    }
+
+    /* 1. MINIGAME ROBUSTUS */
     function initRobustusMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 1/6 - ROBUSTUS';
+      document.getElementById('mgSubtitle').innerText = 'Clique nos drones criados pelo Robustus! Cada drone destruído tira 5% da vida dele.';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: Clique com o mouse sobre os drones na tela.';
+
       const canvas = document.getElementById('mgCanvas');
       const ctx = canvas.getContext('2d');
-      mgState = { playerHp: 100, drones: [], spawnTimer: 0, lasers: [] };
+      mgState = { playerHp: 100, drones: [], spawnTimer: 100, lasers: [] };
 
       function update() {
         if (!gameState.minigameActive) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Gera novos drones
         mgState.spawnTimer++;
-        if (mgState.spawnTimer > 60 && mgState.drones.length < 5) {
+        if (mgState.spawnTimer >= 135 && mgState.drones.length < 4) {
           mgState.spawnTimer = 0;
           mgState.drones.push({
-            x: Math.random() * 560 + 40,
-            y: Math.random() * 220 + 40,
+            x: Math.random() * 520 + 60,
+            y: Math.random() * 210 + 55,
             timer: 0,
-            chargeTime: 110 // tempo até atirar
+            chargeTime: 160
           });
         }
 
-        // Atualiza e desenha cada drone
         mgState.drones.forEach(d => {
           d.timer++;
-
-          // Drone atira se carregar 100%
           if (d.timer >= d.chargeTime) {
-            d.timer = 0; // Reinicia para atirar novamente!
+            d.timer = 0;
             mgState.playerHp = Math.max(0, mgState.playerHp - 5);
             mgState.lasers.push({ x: d.x, y: d.y, life: 10 });
-
-            // Efeito visual de dano na tela
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Se vida zerar -> Derrota
-            if (mgState.playerHp <= 0) {
-              stopMinigameLoop();
-              document.getElementById('screenMinigame').classList.add('hidden');
-              document.getElementById('modalDefeat').classList.remove('hidden');
-              return;
-            }
+            if (mgState.playerHp <= 0) { triggerStoryDefeat(); return; }
           }
 
-          // Desenha o corpo do Drone
-          ctx.fillStyle = '#64748b';
-          ctx.beginPath();
-          ctx.arc(d.x, d.y, 22, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 2;
-          ctx.stroke();
+          ctx.fillStyle = '#475569';
+          ctx.beginPath(); ctx.arc(d.x, d.y, 22, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
 
-          // Desenha a barra/anel de carregamento vermelho do tiro
-          const chargeRatio = d.timer / d.chargeTime;
-          ctx.strokeStyle = '#f59e0b';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(d.x, d.y, 28, 0, Math.PI * 2 * chargeRatio);
-          ctx.stroke();
+          ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('🤖', d.x, d.y);
+
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.arc(d.x, d.y, 28, 0, Math.PI * 2 * (d.timer / d.chargeTime)); ctx.stroke();
         });
 
-        // Desenha tiros de laser efêmeros
         mgState.lasers.forEach((l, idx) => {
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.moveTo(l.x, l.y);
-          ctx.lineTo(canvas.width / 2, canvas.height);
-          ctx.stroke();
-          l.life--;
-          if (l.life <= 0) mgState.lasers.splice(idx, 1);
+          ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(l.x, l.y); ctx.lineTo(canvas.width / 2, canvas.height); ctx.stroke();
+          l.life--; if (l.life <= 0) mgState.lasers.splice(idx, 1);
         });
 
-        // HUD do jogador no minigame
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillStyle = '#ef4444'; ctx.font = '700 16px Orbitron';
-        ctx.fillText(`SUA VIDA: ${Math.ceil(mgState.playerHp)}%`, 20, 30);
+        ctx.fillText(`SUA VIDA: ${mgState.playerHp}%`, 20, 30);
 
         mgLoopId = requestAnimationFrame(update);
       }
 
-      // Destruição do drone ao clicar
       canvas.onclick = (e) => {
         if (!gameState.minigameActive) return;
         const rect = canvas.getBoundingClientRect();
@@ -581,20 +1017,504 @@
 
         for (let i = mgState.drones.length - 1; i >= 0; i--) {
           const d = mgState.drones[i];
-          if (Math.hypot(d.x - mx, d.y - my) <= 32) {
+          if (Math.hypot(d.x - mx, d.y - my) <= 34) {
             mgState.drones.splice(i, 1);
-            gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 10);
+            gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 5);
             document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
-
-            if (gameState.mgBossHp <= 0) {
-              stopMinigameLoop();
-              advanceStoryStage();
-            }
+            if (gameState.mgBossHp <= 0) { stopMinigameLoop(); advanceStoryStage(); }
             break;
           }
         }
       };
+      update();
+    }
 
+    /* 2. MINIGAME GLACIATOR (3 ESPAÇOS DE MOVIMENTO COM A/D + CLIQUE COM COOLDOWN 30MS) */
+    function initGlaciatorMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 2/6 - GLACIATOR';
+      document.getElementById('mgSubtitle').innerText = 'Mova-se nos 3 espaços com A e D para desviar dos sorvetes e clique no Glaciator!';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: [A] Esquerda • [D] Direita (3 espaços) • Clique no Glaciator (CD 30ms).';
+
+      const canvas = document.getElementById('mgCanvas');
+      const ctx = canvas.getContext('2d');
+      const lanes = [160, 320, 480];
+      mgState = { laneIdx: 1, playerHp: 100, balls: [], spawnTimer: 0, lastClick: 0 };
+
+      mgKeyHandler = (e) => {
+        if (!gameState.minigameActive) return;
+        if (e.key === 'a' || e.key === 'A') mgState.laneIdx = Math.max(0, mgState.laneIdx - 1);
+        if (e.key === 'd' || e.key === 'D') mgState.laneIdx = Math.min(2, mgState.laneIdx + 1);
+      };
+      window.addEventListener('keydown', mgKeyHandler);
+
+      function update() {
+        if (!gameState.minigameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Marcação dos 3 espaços no chão
+        lanes.forEach((lx, idx) => {
+          ctx.fillStyle = idx === mgState.laneIdx ? 'rgba(56, 189, 248, 0.25)' : 'rgba(30, 41, 59, 0.6)';
+          ctx.fillRect(lx - 45, 295, 90, 45);
+          ctx.strokeStyle = '#334155'; ctx.strokeRect(lx - 45, 295, 90, 45);
+        });
+
+        // Glaciator no topo
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath(); ctx.arc(320, 60, 42, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.font = '34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🍦', 320, 60);
+
+        // Lança bola de sorvete na posição atual do jogador
+        mgState.spawnTimer++;
+        if (mgState.spawnTimer >= 48) {
+          mgState.spawnTimer = 0;
+          mgState.balls.push({ lane: mgState.laneIdx, y: 95, speed: 4.5 });
+        }
+
+        for (let i = mgState.balls.length - 1; i >= 0; i--) {
+          const b = mgState.balls[i];
+          b.y += b.speed;
+          const bx = lanes[b.lane];
+
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath(); ctx.arc(bx, b.y, 14, 0, Math.PI * 2); ctx.fill();
+
+          if (b.lane === mgState.laneIdx && b.y >= 295 && b.y <= 335) {
+            mgState.balls.splice(i, 1);
+            mgState.playerHp = Math.max(0, mgState.playerHp - 10);
+            if (mgState.playerHp <= 0) { triggerStoryDefeat(); return; }
+          } else if (b.y > 365) {
+            mgState.balls.splice(i, 1);
+          }
+        }
+
+        // Jogador no espaço atual
+        const px = lanes[mgState.laneIdx];
+        ctx.fillStyle = gameState.p1.rectColor;
+        ctx.fillRect(px - 22, 300, 44, 35);
+
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#ef4444'; ctx.font = '700 16px Orbitron';
+        ctx.fillText(`SUA VIDA: ${mgState.playerHp}%`, 20, 30);
+
+        mgLoopId = requestAnimationFrame(update);
+      }
+
+      canvas.onclick = (e) => {
+        if (!gameState.minigameActive) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        if (Math.hypot(mx - 320, my - 60) <= 52 && Date.now() - mgState.lastClick >= 30) {
+          mgState.lastClick = Date.now();
+          gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 4);
+          document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+          if (gameState.mgBossHp <= 0) { stopMinigameLoop(); advanceStoryStage(); }
+        }
+      };
+      update();
+    }
+
+    /* 3. MINIGAME MAYURA (ESTILO JOGO DE LUTA COM RETÂNGULOS, SPAWN 4S, EMPURRÃO, GOLPE 'P' CD 30MS) */
+    function initMayuraMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 3/6 - MAYURA';
+      document.getElementById('mgSubtitle').innerText = 'Derrote os sentimonstros (4 golpes com P) para chegar até Mayura e acertá-la!';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: [A] / [D] para andar • [P] para bater (CD 30ms). Sem pulo!';
+
+      const canvas = document.getElementById('mgCanvas');
+      const ctx = canvas.getContext('2d');
+      mgState = {
+        px: 70,
+        mayuraX: 575,
+        sentis: [{ x: 380, hp: 4 }],
+        spawnTimer: 0,
+        lastHit: 0
+      };
+
+      mgKeyHandler = (e) => {
+        if (!gameState.minigameActive) return;
+        if (e.key === 'a' || e.key === 'A') {
+          mgState.px = Math.max(30, mgState.px - 16);
+        }
+        if (e.key === 'd' || e.key === 'D') {
+          let nextX = mgState.px + 16;
+          let blocked = false;
+          mgState.sentis.forEach(s => {
+            if (s.hp > 0 && nextX + 20 >= s.x - 18 && mgState.px < s.x) blocked = true;
+          });
+          if (!blocked) mgState.px = Math.min(mgState.mayuraX - 42, nextX);
+        }
+        if (e.key === 'p' || e.key === 'P') {
+          if (Date.now() - mgState.lastHit < 30) return;
+          mgState.lastHit = Date.now();
+
+          let hitSenti = false;
+          for (let i = 0; i < mgState.sentis.length; i++) {
+            const s = mgState.sentis[i];
+            if (s.hp > 0 && Math.abs(mgState.px - (s.x - 38)) <= 24) {
+              s.hp--;
+              hitSenti = true;
+              break;
+            }
+          }
+
+          // Só causa 5% de dano na Mayura quando não bate em sentimonstro e está encostado nela
+          if (!hitSenti && Math.abs(mgState.px - (mgState.mayuraX - 42)) <= 26) {
+            gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 5);
+            document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+            if (gameState.mgBossHp <= 0) { stopMinigameLoop(); advanceStoryStage(); }
+          }
+        }
+      };
+      window.addEventListener('keydown', mgKeyHandler);
+
+      function update() {
+        if (!gameState.minigameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Chão da arena
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 310, canvas.width, 50);
+
+        // Spawna um sentimonstro a cada 4 segundos (240 frames)
+        mgState.spawnTimer++;
+        if (mgState.spawnTimer >= 240) {
+          mgState.spawnTimer = 0;
+          if (mgState.sentis.filter(s => s.hp > 0).length < 3) {
+            mgState.sentis.push({ x: mgState.mayuraX - 48, hp: 4 });
+          }
+        }
+
+        // Atualiza sentimonstros (andam para a esquerda e empurram o player sem dar dano)
+        mgState.sentis.forEach(s => {
+          if (s.hp > 0) {
+            s.x -= 0.85;
+            if (mgState.px + 20 >= s.x - 18 && mgState.px < s.x + 18) {
+              mgState.px = Math.max(25, s.x - 38);
+            }
+            if (s.x < 30) s.hp = 0;
+          }
+        });
+
+        // Desenha Mayura (retângulo roxo escuro no canto direito)
+        ctx.fillStyle = '#4c1d95';
+        ctx.fillRect(mgState.mayuraX - 20, 230, 40, 80);
+        ctx.fillStyle = '#e9d5ff'; ctx.font = '700 11px Orbitron'; ctx.textAlign = 'center';
+        ctx.fillText('MAYURA', mgState.mayuraX, 220);
+
+        // Desenha Sentimonstros (retângulos roxo claro)
+        mgState.sentis.forEach(s => {
+          if (s.hp > 0) {
+            ctx.fillStyle = '#c084fc';
+            ctx.fillRect(s.x - 18, 245, 36, 65);
+            ctx.fillStyle = '#fff'; ctx.font = '700 11px Orbitron';
+            ctx.fillText(`${s.hp}/4`, s.x, 237);
+          }
+        });
+
+        // Desenha Jogador (retângulo com a cor do herói escolhido)
+        ctx.fillStyle = gameState.p1.rectColor;
+        ctx.fillRect(mgState.px - 20, 245, 40, 65);
+        ctx.fillStyle = '#fff'; ctx.font = '700 11px Orbitron';
+        ctx.fillText(gameState.p1.name.toUpperCase(), mgState.px, 237);
+
+        mgLoopId = requestAnimationFrame(update);
+      }
+      update();
+    }
+
+    /* 4. MINIGAME PENALTY (TURNOS: A CADA 2 CLIQUES DO PLAYER, PENALTY USA CARTÃO ALEATÓRIO) */
+    function initPenaltyMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 4/6 - PENALTY';
+      document.getElementById('mgSubtitle').innerText = 'A cada 2 cliques seus, Penalty sorteia um cartão (Verde 45%, Amarelo 35%, Vermelho 20%).';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: Clique em "Atacar Penalty" duas vezes por turno.';
+
+      document.getElementById('penaltyPanel').classList.remove('hidden');
+      mgState = {
+        playerHp: 100,
+        clicksInTurn: 0,
+        activeCard: null, // 'yellow' | null
+        yellowTurnsLeft: 0,
+        locked: false
+      };
+      updatePenaltyPanelUI('🎴', 'AGUARDANDO', 'Faça seus 2 ataques!', 'border-slate-700');
+    }
+
+    function updatePenaltyPanelUI(icon, title, desc, borderClass) {
+      document.getElementById('penPlayerHpTxt').innerText = `SUA VIDA: ${Math.ceil(mgState.playerHp)}%`;
+      document.getElementById('penClicksTxt').innerText = `ATAQUES NO TURNO: ${mgState.clicksInTurn} / 2`;
+      document.getElementById('penCardEffectTxt').innerText = mgState.yellowTurnsLeft > 0
+        ? `CARTÃO ATIVO: AMARELO (${mgState.yellowTurnsLeft}t)`
+        : 'CARTÃO ATIVO: NENHUM';
+
+      const cardBox = document.getElementById('penCardBox');
+      cardBox.className = `w-36 h-40 rounded-2xl border-2 ${borderClass} bg-slate-900 flex flex-col items-center justify-center text-center p-3 shadow-xl transition-all`;
+      document.getElementById('penCardIcon').innerText = icon;
+      document.getElementById('penCardTitle').innerText = title;
+      document.getElementById('penCardDesc').innerText = desc;
+    }
+
+    function penaltyPlayerAttack() {
+      if (!gameState.minigameActive || mgState.locked) return;
+
+      let dmg = 10;
+      if (mgState.yellowTurnsLeft > 0) {
+        dmg = 5; // Reduz o dano recebido em 50%
+      }
+
+      gameState.mgBossHp = Math.max(0, gameState.mgBossHp - dmg);
+      document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+      mgState.clicksInTurn++;
+
+      if (gameState.mgBossHp <= 0) {
+        document.getElementById('penaltyPanel').classList.add('hidden');
+        stopMinigameLoop();
+        advanceStoryStage();
+        return;
+      }
+
+      document.getElementById('penClicksTxt').innerText = `ATAQUES NO TURNO: ${mgState.clicksInTurn} / 2`;
+      document.getElementById('penLogTxt').innerText = `Você causou ${dmg}% de dano em Penalty!`;
+
+      // Após 2 cliques do jogador, ocorre o turno da Penalty
+      if (mgState.clicksInTurn >= 2) {
+        mgState.locked = true;
+        document.getElementById('btnPenaltyHit').disabled = true;
+
+        setTimeout(() => {
+          if (!gameState.minigameActive) return;
+
+          // Se já tiver cartão ativo (Amarelo), ela NÃO sorteia novo cartão
+          if (mgState.yellowTurnsLeft > 0) {
+            mgState.yellowTurnsLeft--;
+            updatePenaltyPanelUI('🟨', 'ESCUDO ATIVO', 'Cartão Amarelo ainda em efeito (-50% dano).', 'border-amber-400');
+          } else {
+            const roll = Math.random();
+            if (roll < 0.45) {
+              updatePenaltyPanelUI('🟩', 'CARTÃO VERDE', 'Nada aconteceu neste turno!', 'border-emerald-500');
+            } else if (roll < 0.80) {
+              mgState.yellowTurnsLeft = 2;
+              updatePenaltyPanelUI('🟨', 'CARTÃO AMARELO', 'Campo de força reduz dano em 50% por 2 turnos!', 'border-amber-400');
+            } else {
+              const heal = Math.round(100 / 7);
+              gameState.mgBossHp = Math.min(100, gameState.mgBossHp + heal);
+              document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+              updatePenaltyPanelUI('🟥', 'CARTÃO VERMELHO', `Penalty recuperou 1/7 (+${heal}%) da vida máxima!`, 'border-red-500');
+            }
+          }
+
+          // Ataque da Penalty no jogador
+          mgState.playerHp = Math.max(0, mgState.playerHp - 12);
+          document.getElementById('penPlayerHpTxt').innerText = `SUA VIDA: ${Math.ceil(mgState.playerHp)}%`;
+          document.getElementById('penLogTxt').innerText = 'Penalty contra-atacou! Sua vez de dar 2 cliques.';
+
+          if (mgState.playerHp <= 0) {
+            document.getElementById('penaltyPanel').classList.add('hidden');
+            triggerStoryDefeat();
+            return;
+          }
+
+          mgState.clicksInTurn = 0;
+          mgState.locked = false;
+          document.getElementById('btnPenaltyHit').disabled = false;
+          document.getElementById('penClicksTxt').innerText = 'ATAQUES NO TURNO: 0 / 2';
+        }, 700);
+      }
+    }
+
+    /* 5. MINIGAME ANANSI (3 ESPAÇOS A/D, ARANHAS A CADA 2S, BOTÃO DE TEIA INFERIOR DIREITO, CLIQUE 45MS) */
+    function initAnansiMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 5/6 - ANANSI';
+      document.getElementById('mgSubtitle').innerText = 'Desvie das aranhas com A e D (3 espaços) e clique na Anansi (5% por clique)!';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: [A] / [D] (3 espaços) • Clique na Anansi (CD 45ms) • Botão Teia para se soltar.';
+
+      const canvas = document.getElementById('mgCanvas');
+      const ctx = canvas.getContext('2d');
+      const lanes = [160, 320, 480];
+      mgState = {
+        laneIdx: 1,
+        playerHp: 100,
+        trapped: false,
+        spiders: [],
+        spawnTimer: 0,
+        lastClick: 0
+      };
+
+      mgKeyHandler = (e) => {
+        if (!gameState.minigameActive || mgState.trapped) return;
+        if (e.key === 'a' || e.key === 'A') mgState.laneIdx = Math.max(0, mgState.laneIdx - 1);
+        if (e.key === 'd' || e.key === 'D') mgState.laneIdx = Math.min(2, mgState.laneIdx + 1);
+      };
+      window.addEventListener('keydown', mgKeyHandler);
+
+      function update() {
+        if (!gameState.minigameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 3 espaços no chão
+        lanes.forEach((lx, idx) => {
+          ctx.fillStyle = idx === mgState.laneIdx ? 'rgba(239, 68, 68, 0.22)' : 'rgba(30, 41, 59, 0.6)';
+          ctx.fillRect(lx - 45, 295, 90, 45);
+          ctx.strokeStyle = '#334155'; ctx.strokeRect(lx - 45, 295, 90, 45);
+        });
+
+        // Anansi no topo
+        ctx.fillStyle = '#991b1b';
+        ctx.beginPath(); ctx.arc(320, 60, 42, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#f87171'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.font = '34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('🕷️', 320, 60);
+
+        // Aranhas caem do céu a cada 2 segundos (120 frames)
+        mgState.spawnTimer++;
+        if (mgState.spawnTimer >= 120) {
+          mgState.spawnTimer = 0;
+          mgState.spiders.push({ lane: Math.floor(Math.random() * 3), y: 105, speed: 3.4 });
+        }
+
+        for (let i = mgState.spiders.length - 1; i >= 0; i--) {
+          const sp = mgState.spiders[i];
+          sp.y += sp.speed;
+          const sx = lanes[sp.lane];
+
+          ctx.font = '24px sans-serif';
+          ctx.fillText('🕷️', sx, sp.y);
+
+          if (sp.lane === mgState.laneIdx && sp.y >= 295 && sp.y <= 335) {
+            mgState.spiders.splice(i, 1);
+            mgState.playerHp = Math.max(0, mgState.playerHp - 15);
+            mgState.trapped = true;
+            document.getElementById('btnWebFree').classList.remove('hidden');
+            if (mgState.playerHp <= 0) { triggerStoryDefeat(); return; }
+          } else if (sp.y > 365) {
+            mgState.spiders.splice(i, 1);
+          }
+        }
+
+        // Jogador
+        const px = lanes[mgState.laneIdx];
+        ctx.fillStyle = gameState.p1.rectColor;
+        ctx.fillRect(px - 22, 300, 44, 35);
+
+        if (mgState.trapped) {
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+          ctx.strokeRect(px - 25, 297, 50, 41);
+          ctx.fillStyle = '#fca5a5'; ctx.font = '700 14px Orbitron';
+          ctx.fillText('PRESO NA TEIA! CLIQUE NO BOTÃO INFERIOR DIREITO!', 320, 180);
+        }
+
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#ef4444'; ctx.font = '700 16px Orbitron';
+        ctx.fillText(`SUA VIDA: ${mgState.playerHp}%`, 20, 30);
+
+        mgLoopId = requestAnimationFrame(update);
+      }
+
+      canvas.onclick = (e) => {
+        if (!gameState.minigameActive || mgState.trapped) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        if (Math.hypot(mx - 320, my - 60) <= 50 && Date.now() - mgState.lastClick >= 45) {
+          mgState.lastClick = Date.now();
+          gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 5);
+          document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+          if (gameState.mgBossHp <= 0) {
+            document.getElementById('btnWebFree').classList.add('hidden');
+            stopMinigameLoop();
+            advanceStoryStage();
+          }
+        }
+      };
+      update();
+    }
+
+    function releaseAnansiWeb() {
+      mgState.trapped = false;
+      document.getElementById('btnWebFree').classList.add('hidden');
+    }
+
+    /* 6. MINIGAME BEFANA (FUMAÇA, OPACIDADE, 4 SEGUNDOS ANTES DE ATIRAR 10% DANO, 5% DANO NO CLIQUE) */
+    function initBefanaMg() {
+      document.getElementById('mgTitle').innerText = 'MINIGAME 6/6 - BEFANA';
+      document.getElementById('mgSubtitle').innerText = 'Clique na Befana na fumaça antes que ela atire no 4º segundo!';
+      document.getElementById('mgControlsDesc').innerText = 'Controles: Clique na Befana quando ela surgir na fumaça (5% de dano por acerto).';
+
+      const canvas = document.getElementById('mgCanvas');
+      const ctx = canvas.getContext('2d');
+      mgState = { bx: 320, by: 180, timer: 0, spawnDelay: 0, visible: true, playerHp: 100 };
+
+      function scheduleNextAppearance() {
+        mgState.visible = false;
+        mgState.timer = 0;
+        // Tempo aleatório até aparecer (máximo de 4s = 240 frames, usamos entre 30 e 150 frames)
+        mgState.spawnDelay = Math.floor(Math.random() * 120) + 30;
+        mgState.bx = Math.random() * 500 + 70;
+        mgState.by = Math.random() * 210 + 80;
+      }
+
+      function update() {
+        if (!gameState.minigameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Campo coberto por fumaça
+        ctx.fillStyle = 'rgba(71, 85, 105, 0.90)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (!mgState.visible) {
+          mgState.spawnDelay--;
+          if (mgState.spawnDelay <= 0) {
+            mgState.visible = true;
+            mgState.timer = 0;
+          }
+        } else {
+          mgState.timer++;
+          // Surge e some usando opacidade durante os 4 segundos (240 frames)
+          const opacity = Math.sin((mgState.timer / 240) * Math.PI);
+
+          ctx.save();
+          ctx.globalAlpha = Math.max(0.08, opacity);
+          ctx.fillStyle = '#d97706';
+          ctx.beginPath(); ctx.arc(mgState.bx, mgState.by, 30, 0, Math.PI * 2); ctx.fill();
+          ctx.font = '32px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('🧹', mgState.bx, mgState.by);
+          ctx.restore();
+
+          // No 4º segundo (240 frames), se não acertada, ela atira (10% de dano) e some
+          if (mgState.timer >= 240) {
+            mgState.playerHp = Math.max(0, mgState.playerHp - 10);
+            if (mgState.playerHp <= 0) { triggerStoryDefeat(); return; }
+            scheduleNextAppearance();
+          }
+        }
+
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#ef4444'; ctx.font = '700 16px Orbitron';
+        ctx.fillText(`SUA VIDA: ${mgState.playerHp}%`, 20, 30);
+
+        mgLoopId = requestAnimationFrame(update);
+      }
+
+      canvas.onclick = (e) => {
+        if (!gameState.minigameActive || !mgState.visible) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        if (Math.hypot(mx - mgState.bx, my - mgState.by) <= 38) {
+          gameState.mgBossHp = Math.max(0, gameState.mgBossHp - 5);
+          document.getElementById('mgBossHpTxt').innerText = `${gameState.mgBossHp}%`;
+          if (gameState.mgBossHp <= 0) {
+            stopMinigameLoop();
+            advanceStoryStage();
+          } else {
+            scheduleNextAppearance();
+          }
+        }
+      };
       update();
     }
 
@@ -602,18 +1522,49 @@
       gameState.storyStage++;
       if (gameState.storyStage >= VILLAINS.length) {
         document.getElementById('screenMinigame').classList.add('hidden');
+        document.getElementById('victoryTxt').innerText = `Parabéns! ${gameState.p1.name} derrotou todos os 6 vilões e salvou Paris!`;
         document.getElementById('modalVictory').classList.remove('hidden');
       } else {
         document.getElementById('screenMinigame').classList.add('hidden');
-        gameState.p2 = JSON.parse(JSON.stringify(VILLAINS[gameState.storyStage]));
-        gameState.p1.hp = gameState.p1.maxHp;
+        // Restaura herói para a próxima batalha da história
+        const heroTemplate = HEROES[gameState.p1.id];
+        gameState.p1 = createFighterState(heroTemplate);
+        gameState.p2 = createFighterState(VILLAINS[gameState.storyStage]);
         startCombat();
       }
     }
 
+    // Partículas decorativas de fundo
     const bgCanvas = document.getElementById('fxCanvas');
-    function resizeCanvas() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
-    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    const bgCtx = bgCanvas.getContext('2d');
+    const particles = Array.from({ length: 28 }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 2 + 1,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      color: Math.random() > 0.5 ? 'rgba(239,68,68,0.25)' : 'rgba(168,85,247,0.25)'
+    }));
+
+    function animateBg() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = bgCanvas.width; if (p.x > bgCanvas.width) p.x = 0;
+        if (p.y < 0) p.y = bgCanvas.height; if (p.y > bgCanvas.height) p.y = 0;
+        bgCtx.fillStyle = p.color;
+        bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2); bgCtx.fill();
+      });
+      requestAnimationFrame(animateBg);
+    }
+
+    function resizeCanvas() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animateBg();
   </script>
 </body>
 </html>
