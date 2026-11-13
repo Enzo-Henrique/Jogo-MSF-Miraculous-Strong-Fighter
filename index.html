@@ -1055,20 +1055,20 @@
 
       const canvas = document.getElementById('mgCanvas');
       const ctx = canvas.getContext('2d');
-      mgState = { playerHp: 100, drones: [], spawnTimer: 80, lasers: [] };
+      mgState = { playerHp: 100, drones: [], spawnTimer: 70, lasers: [] };
 
       function update() {
         if (!gameState.minigameActive) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         mgState.spawnTimer++;
-        if (mgState.spawnTimer >= 80 && mgState.drones.length < 4) {
+        if (mgState.spawnTimer >= 70 && mgState.drones.length < 4) {
           mgState.spawnTimer = 0;
           mgState.drones.push({
             x: Math.random() * 520 + 60,
             y: Math.random() * 210 + 55,
             timer: 0,
-            chargeTime: 110
+            chargeTime: 85
           });
         }
 
@@ -1086,7 +1086,7 @@
           ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.stroke();
 
           ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.fillText('🤖', d.x, d.y);
+          ctx.fillText('🛸', d.x, d.y);
 
           ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
           ctx.beginPath(); ctx.arc(d.x, d.y, 28, 0, Math.PI * 2 * (d.timer / d.chargeTime)); ctx.stroke();
@@ -1159,7 +1159,7 @@
         ctx.beginPath(); ctx.arc(320, 60, 42, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 3; ctx.stroke();
         ctx.font = '34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('🍦', 320, 60);
+        ctx.fillText('☃️', 320, 60);
 
         // Lança bola de sorvete na posição atual do jogador
         mgState.spawnTimer++;
@@ -1274,9 +1274,9 @@
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(0, 310, canvas.width, 50);
 
-        // Spawna um sentimonstro a cada 4 segundos (240 frames)
+        // Spawna um sentimonstro a cada 3 segundos (180 frames)
         mgState.spawnTimer++;
-        if (mgState.spawnTimer >= 240) {
+        if (mgState.spawnTimer >= 180) {
           mgState.spawnTimer = 0;
           if (mgState.sentis.filter(s => s.hp > 0).length < 3) {
             mgState.sentis.push({ x: mgState.mayuraX - 48, hp: 4 });
