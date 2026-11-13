@@ -213,6 +213,31 @@
       </div>
     </section>
 
+    <!-- TELA 3.5: AVISO ANTES DO MINIGAME -->
+    <section id="screenMgBriefing" class="hidden z-10 w-full max-w-2xl bg-slate-900/95 border border-amber-500/40 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur text-center glow-frame">
+      <div class="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-orbitron mb-3">⚠️ AVISO • PRÓXIMO DESAFIO</div>
+      <div id="brIcon" class="text-6xl mb-3">🎮</div>
+      <h2 id="brTitle" class="font-orbitron font-black text-2xl md:text-3xl text-white mb-4">MINIGAME</h2>
+      <p id="brObjective" class="text-slate-200 text-base md:text-lg leading-relaxed mb-5"></p>
+      <div class="text-left bg-slate-950/70 border border-slate-800 rounded-xl p-4 mb-4">
+        <div class="font-orbitron text-xs text-sky-400 font-bold mb-2">🎮 CONTROLES</div>
+        <ul id="brControls" class="space-y-1.5 text-sm md:text-base text-slate-300"></ul>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left mb-7">
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3">
+          <div class="font-orbitron text-xs text-emerald-400 font-bold mb-1">🏆 COMO VENCER</div>
+          <p id="brWin" class="text-sm text-slate-300"></p>
+        </div>
+        <div class="bg-red-950/40 border border-red-500/30 rounded-xl p-3">
+          <div class="font-orbitron text-xs text-red-400 font-bold mb-1">💔 COMO PERDER</div>
+          <p id="brLose" class="text-sm text-slate-300"></p>
+        </div>
+      </div>
+      <button id="btnStartMinigame" onclick="confirmStartMinigame()" class="w-full py-5 md:py-6 bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 hover:from-red-500 hover:via-pink-500 hover:to-purple-500 text-white font-orbitron font-black text-xl md:text-2xl tracking-wider rounded-2xl shadow-lg shadow-red-600/40 transition hover:scale-[1.02] active:scale-95">
+        ▶ ESTOU PRONTO! COMEÇAR
+      </button>
+    </section>
+
     <!-- TELA 4: MINIGAMES PÓS-LUTA -->
     <section id="screenMinigame" class="hidden z-10 w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-2xl flex flex-col items-center">
       <div class="w-full flex justify-between items-center mb-3">
@@ -490,7 +515,7 @@
 
     function goToMenu() {
       stopMinigameLoop();
-      ['screenSelectChar', 'screenCombat', 'screenMinigame', 'modalDefeat', 'modalVictory', 'gameModeBadge', 'btnHeaderMenu']
+      ['screenSelectChar', 'screenCombat', 'screenMgBriefing', 'screenMinigame', 'modalDefeat', 'modalVictory', 'gameModeBadge', 'btnHeaderMenu']
         .forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById('screenMenu').classList.remove('hidden');
       pvpFirstChoice = null;
@@ -893,7 +918,7 @@
         if (gameState.mode === 'story') {
           setTimeout(() => {
             document.getElementById('screenCombat').classList.add('hidden');
-            startMinigame(VILLAINS[gameState.storyStage].mgType);
+            showMinigameBriefing(VILLAINS[gameState.storyStage].mgType);
           }, 1000);
         } else {
           document.getElementById('victoryTxt').innerText = `${gameState.p1.name} venceu o duelo PvP x1!`;
@@ -915,6 +940,77 @@
     let mgLoopId = null;
     let mgState = {};
     let mgKeyHandler = null;
+
+    /* =========================================================================
+       TELA DE AVISO ANTES DE CADA MINIGAME
+    ========================================================================= */
+    const MG_BRIEFINGS = {
+      robustus: {
+        icon: '🤖', title: 'MINIGAME 1/6 - ROBUSTUS',
+        objective: 'Nesse minigame você precisará destruir os drones do Robustus antes que eles disparem lasers em você! Cada drone destruído tira 5% da vida do chefe.',
+        controls: ['🖱️ <b>Mouse:</b> clique sobre os drones para destruí-los', '⏳ O anel amarelo ao redor do drone mostra quando ele vai atirar'],
+        win: 'Destrua drones até a vida do Robustus chegar a 0%.',
+        lose: 'Cada laser tira 5% da sua vida. Se ela chegar a 0%, você perde.'
+      },
+      glaciator: {
+        icon: '🍦', title: 'MINIGAME 2/6 - GLACIATOR',
+        objective: 'Nesse minigame você precisará desviar das bolas de sorvete e vencer o chefe dessa fase: use as teclas A e D para desviar e o mouse para clicar no Glaciator e derrotá-lo!',
+        controls: ['⌨️ <b>A</b> e <b>D:</b> mover entre os 3 espaços no chão', '🖱️ <b>Mouse:</b> clique no Glaciator (no topo da tela) para causar dano'],
+        win: 'Clique no Glaciator até a vida dele chegar a 0%.',
+        lose: 'Cada bola de sorvete que te acerta tira 10% da sua vida.'
+      },
+      mayura: {
+        icon: '🦚', title: 'MINIGAME 3/6 - MAYURA',
+        objective: 'Nesse minigame você precisará derrotar os sentimonstros (4 golpes cada) para abrir caminho até a Mayura e acertá-la! Um novo sentimonstro surge a cada 4 segundos.',
+        controls: ['⌨️ <b>A</b> e <b>D:</b> andar para a esquerda e direita', '👊 <b>P:</b> bater (encoste no inimigo para acertar)', '🚫 Não existe pulo!'],
+        win: 'Encoste na Mayura e acerte golpes até a vida dela chegar a 0%.',
+        lose: 'Os sentimonstros não dão dano, mas te empurram para trás!'
+      },
+      penalty: {
+        icon: '⚽', title: 'MINIGAME 4/6 - PENALTY',
+        objective: 'Nesse minigame você vai duelar em turnos contra a Penalty! A cada 2 ataques seus, ela sorteia um cartão e contra-ataca.',
+        controls: ['🖱️ <b>Mouse:</b> clique em "Atacar Penalty" 2 vezes por turno', '🟩 Verde: nada acontece • 🟨 Amarelo: seu dano cai pela metade por 2 turnos • 🟥 Vermelho: ela recupera vida'],
+        win: 'Reduza a vida da Penalty a 0% (cada ataque tira 10%).',
+        lose: 'Cada contra-ataque tira 12% da sua vida.'
+      },
+      anansi: {
+        icon: '🕷️', title: 'MINIGAME 5/6 - ANANSI',
+        objective: 'Nesse minigame você precisará desviar das aranhas que caem do céu e vencer a Anansi: use as teclas A e D para desviar e o mouse para clicar na Anansi e derrotá-la!',
+        controls: ['⌨️ <b>A</b> e <b>D:</b> mover entre os 3 espaços no chão', '🖱️ <b>Mouse:</b> clique na Anansi (no topo da tela)', '🕸️ Se ficar preso na teia, clique no botão <b>"Libertar-se da teia"</b> no canto inferior direito'],
+        win: 'Clique na Anansi até a vida dela chegar a 0% (5% por clique).',
+        lose: 'Cada aranha que te acerta tira 15% da sua vida e te prende na teia.'
+      },
+      befana: {
+        icon: '🧹', title: 'MINIGAME 6/6 - BEFANA',
+        objective: 'Nesse minigame a Befana se esconde na fumaça! Ela aparece em lugares aleatórios e some aos poucos — clique nela antes que ela atire em você.',
+        controls: ['🖱️ <b>Mouse:</b> clique na Befana assim que ela surgir na fumaça', '👀 Fique atento: ela aparece e desaparece rapidamente'],
+        win: 'Acerte a Befana até a vida dela chegar a 0% (5% por acerto).',
+        lose: 'Cada vez que ela atira em você, perde 10% da sua vida.'
+      }
+    };
+
+    let pendingMgType = null;
+
+    function showMinigameBriefing(type) {
+      const b = MG_BRIEFINGS[type];
+      if (!b) { startMinigame(type); return; }
+      pendingMgType = type;
+      document.getElementById('brIcon').innerText = b.icon;
+      document.getElementById('brTitle').innerText = b.title;
+      document.getElementById('brObjective').innerText = b.objective;
+      document.getElementById('brControls').innerHTML = b.controls.map(c => `<li>${c}</li>`).join('');
+      document.getElementById('brWin').innerText = b.win;
+      document.getElementById('brLose').innerText = b.lose;
+      document.getElementById('screenMgBriefing').classList.remove('hidden');
+    }
+
+    function confirmStartMinigame() {
+      if (!pendingMgType) return;
+      const type = pendingMgType;
+      pendingMgType = null;
+      document.getElementById('screenMgBriefing').classList.add('hidden');
+      startMinigame(type);
+    }
 
     function startMinigame(type) {
       stopMinigameLoop();
@@ -959,20 +1055,20 @@
 
       const canvas = document.getElementById('mgCanvas');
       const ctx = canvas.getContext('2d');
-      mgState = { playerHp: 100, drones: [], spawnTimer: 100, lasers: [] };
+      mgState = { playerHp: 100, drones: [], spawnTimer: 80, lasers: [] };
 
       function update() {
         if (!gameState.minigameActive) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         mgState.spawnTimer++;
-        if (mgState.spawnTimer >= 135 && mgState.drones.length < 4) {
+        if (mgState.spawnTimer >= 80 && mgState.drones.length < 4) {
           mgState.spawnTimer = 0;
           mgState.drones.push({
             x: Math.random() * 520 + 60,
             y: Math.random() * 210 + 55,
             timer: 0,
-            chargeTime: 160
+            chargeTime: 110
           });
         }
 
@@ -1473,7 +1569,7 @@
         } else {
           mgState.timer++;
           // Surge e some usando opacidade durante os 4 segundos (240 frames)
-          const opacity = Math.sin((mgState.timer / 240) * Math.PI);
+          const opacity = Math.sin((mgState.timer / 70) * Math.PI);
 
           ctx.save();
           ctx.globalAlpha = Math.max(0.08, opacity);
@@ -1484,7 +1580,7 @@
           ctx.restore();
 
           // No 4º segundo (240 frames), se não acertada, ela atira (10% de dano) e some
-          if (mgState.timer >= 240) {
+          if (mgState.timer >= 70) {
             mgState.playerHp = Math.max(0, mgState.playerHp - 10);
             if (mgState.playerHp <= 0) { triggerStoryDefeat(); return; }
             scheduleNextAppearance();
